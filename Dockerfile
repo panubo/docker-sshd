@@ -3,7 +3,7 @@ FROM alpine:latest
 MAINTAINER Andrew Cutler <andrew@panubo.com>
 
 RUN apk update && \
-  apk add openssh rsync && \
+  apk add bash openssh rsync && \
   rm -rf /var/cache/apk/* && \
   mkdir -p ~root/.ssh && chmod 700 ~root/.ssh/ && \
   echo -e "Port 22\n" >> /etc/ssh/sshd_config
