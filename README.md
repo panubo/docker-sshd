@@ -1,5 +1,7 @@
 # SSHD
 
+[![Docker Repository on Quay.io](https://quay.io/repository/macropin/sshd/status "Docker Repository on Quay.io")](https://quay.io/repository/macropin/sshd)
+
 Docker container with `bash`, `sshd` and `rsync` installed.
 
 Mount your .ssh credentials at `/root/.ssh/` in order to access the container.
