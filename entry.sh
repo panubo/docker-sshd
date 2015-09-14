@@ -6,6 +6,11 @@ set -e
 
 DAEMON=sshd
 
+# Copy default config from cache
+if [ ! "$(ls -A /etc/ssh)" ]; then
+   cp -a /etc/ssh.cache/* /etc/ssh/
+fi
+
 # Generate Host keys, if required
 if [ ! -f /etc/ssh/ssh_host_* ]; then
     ssh-keygen -A
