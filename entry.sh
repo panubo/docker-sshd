@@ -4,15 +4,17 @@ set -e
 
 [ "$DEBUG" == 'true' ] && set -x
 
-# Generate Host keys
-ssh-keygen -A
+DAEMON=sshd
+
+# Generate Host keys, if required
+if [ ! -f /etc/ssh/ssh_host_* ]; then
+    ssh-keygen -A
+fi
 
 # Fix permissions, if writable
 if [ -w ~/.ssh ]; then
     chown -R root:root ~/.ssh && chmod 700 ~/.ssh/ && chmod 600 ~/.ssh/*
 fi
-
-DAEMON=sshd
 
 stop() {
     echo "Received SIGINT or SIGTERM. Shutting down $DAEMON"
@@ -27,7 +29,7 @@ stop() {
 }
 
 echo "Running $@"
-if [ "$1" == "/usr/sbin/sshd" ]; then
+if [ "$(basename $DAEMON)" == "$DAEMON" ]; then
     trap stop SIGINT SIGTERM
     $@ &
     pid="$!"
