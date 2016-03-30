@@ -18,9 +18,10 @@ fi
 
 # Fix permissions, if writable
 if [ -w ~/.ssh ]; then
-    chown -R root:root ~/.ssh && chmod 700 ~/.ssh/
+    chown root:root ~/.ssh && chmod 700 ~/.ssh/
 fi
 if [ -w ~/.ssh/authorized_keys ]; then
+    chown root:root ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
 fi
 
