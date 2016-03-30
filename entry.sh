@@ -12,7 +12,7 @@ if [ ! "$(ls -A /etc/ssh)" ]; then
 fi
 
 # Generate Host keys, if required
-if [ ! -f /etc/ssh/ssh_host_* ]; then
+if ! ls /etc/ssh/ssh_host_* 1> /dev/null 2>&1; then
     ssh-keygen -A
 fi
 
