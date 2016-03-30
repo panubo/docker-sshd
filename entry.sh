@@ -18,7 +18,13 @@ fi
 
 # Fix permissions, if writable
 if [ -w ~/.ssh ]; then
-    chown -R root:root ~/.ssh && chmod 700 ~/.ssh/ && chmod 600 ~/.ssh/* || echo "WARNING: No SSH authorized_keys or config found for root"
+    chown -R root:root ~/.ssh && chmod 700 ~/.ssh/
+fi
+find ~/.ssh -maxdepth 1 -type f -writable -exec chmod 600 {} \;
+
+# Warn if no config
+if [ ! -e ~/.ssh/authorized_keys ]; then
+  echo "WARNING: No SSH authorized_keys found for root"
 fi
 
 stop() {
