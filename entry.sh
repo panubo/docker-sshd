@@ -26,7 +26,7 @@ if [ -w ~/.ssh/authorized_keys ]; then
 fi
 
 # Warn if no config
-if [ -e ~/.ssh/authorized_keys ]; then
+if [ ! -e ~/.ssh/authorized_keys ]; then
   echo "WARNING: No SSH authorized_keys found for root"
 fi
 
