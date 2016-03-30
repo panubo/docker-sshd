@@ -20,10 +20,12 @@ fi
 if [ -w ~/.ssh ]; then
     chown -R root:root ~/.ssh && chmod 700 ~/.ssh/
 fi
-find ~/.ssh -maxdepth 1 -type f -writable -exec chmod 600 {} \;
+if [ -w ~/.ssh/authorized_keys ]; then
+    chmod 600 ~/.ssh/authorized_keys
+fi
 
 # Warn if no config
-if [ ! -e ~/.ssh/authorized_keys ]; then
+if [ -e ~/.ssh/authorized_keys ]; then
   echo "WARNING: No SSH authorized_keys found for root"
 fi
 
