@@ -24,10 +24,10 @@ if [ -w ~/.ssh/authorized_keys ]; then
     chown root:root ~/.ssh/authorized_keys
     chmod 600 ~/.ssh/authorized_keys
 fi
-if [ -w /etc/ssh/authorized_keys ]; then
-    chown root:root /etc/ssh/authorized_keys
-    chmod 755 /etc/ssh/authorized_keys
-    find /etc/ssh/authorized_keys/ -type f -exec chmod 644 {} \;
+if [ -w /etc/authorized_keys ]; then
+    chown root:root /etc/authorized_keys
+    chmod 755 /etc/authorized_keys
+    find /etc/authorized_keys/ -type f -exec chmod 644 {} \;
 fi
 
 # Add users if SSH_USERS=user/uid/gid set
@@ -37,14 +37,14 @@ if [ -v SSH_USERS ]; then
         IFS='/' read -ra UA <<< "$USER"
         NAME=${UA[0]}
         echo ">> Adding user $NAME with uid: ${UA[1]} gid: ${UA[2]}."
-        if [ ! -e " /etc/ssh/authorized_keys/$NAME" ]; then
+        if [ ! -e " /etc/authorized_keys/$NAME" ]; then
             echo "WARNING: No SSH authorized_keys found for $NAME!"
         fi
         adduser -D -u ${UA[1]} -g ${UA[2]} $NAME
     done
 else
     # Warn if no authorized_keys
-    if [ ! -e ~/.ssh/authorized_keys ] && [ ! $(ls -A /etc/ssh/authorized_keys) ]; then
+    if [ ! -e ~/.ssh/authorized_keys ] && [ ! $(ls -A /etc/authorized_keys) ]; then
       echo "WARNING: No SSH authorized_keys found!"
     fi
 fi

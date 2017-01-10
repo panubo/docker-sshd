@@ -6,7 +6,7 @@ Minimal Alpine Linux Docker container with `sshd` exposed and `rsync` installed.
 
 Mount your .ssh credentials (RSA public keys) at `/root/.ssh/` in order to
 access the container via root ssh or mount each user's key in
-`/etc/ssh/authorized_keys/<username>` and set `SSH_SERS` config to create user accounts (see below).
+`/etc/authorized_keys/<username>` and set `SSH_SERS` config to create user accounts (see below).
 
 Optionally mount a custom sshd config at `/etc/ssh/`.
 
@@ -24,5 +24,5 @@ docker run -d -p 2222:22 -v /secrets/id_rsa.pub:/root/.ssh/authorized_keys -v /m
 or
 
 ```
-docker run -d -p 2222:22 -v $(pwd)/id_rsa.pub:/etc/ssh/authorized_keys/www -e SSH_USERS="www/48/48" foo bash
+docker run -d -p 2222:22 -v $(pwd)/id_rsa.pub:/etc/authorized_keys/www -e SSH_USERS="www/48/48" foo bash
 ```
