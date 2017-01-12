@@ -30,17 +30,21 @@ if [ -w /etc/authorized_keys ]; then
     find /etc/authorized_keys/ -type f -exec chmod 644 {} \;
 fi
 
-# Add users if SSH_USERS=user/uid/gid set
+# Add users if SSH_USERS=user:uid:gid set
 if [ -v SSH_USERS ]; then
     USERS=$(echo $SSH_USERS | tr "," "\n")
-    for USER in $USERS; do
-        IFS='/' read -ra UA <<< "$USER"
-        NAME=${UA[0]}
-        echo ">> Adding user $NAME with uid: ${UA[1]} gid: ${UA[2]}."
-        if [ ! -e " /etc/authorized_keys/$NAME" ]; then
-            echo "WARNING: No SSH authorized_keys found for $NAME!"
+    for U in $USERS; do
+        IFS=':' read -ra UA <<< "$U"
+        _NAME=${UA[0]}
+        _UID=${UA[1]}
+        _GID=${UA[2]}
+
+        echo ">> Adding user ${_NAME} with uid: ${_UID}, gid: ${_GID}."
+        if [ ! -e " /etc/authorized_keys/${_NAME}" ]; then
+            echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         fi
-        adduser -D -u ${UA[1]} -g ${UA[2]} $NAME
+        addgroup -g ${_GID} ${_NAME}
+        adduser -D -u ${_UID} -G ${_NAME} -s '' ${_NAME}
     done
 else
     # Warn if no authorized_keys

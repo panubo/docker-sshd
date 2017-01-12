@@ -12,7 +12,7 @@ Optionally mount a custom sshd config at `/etc/ssh/`.
 
 ## Environment Options
 
-- `SSH_USERS` list of user accounts and uid/gids to create. eg `SSH_USERS=www/48/48,admin/1000/1000`
+- `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000`
 - `MOTD` change the login message
 
 ## Usage Example
