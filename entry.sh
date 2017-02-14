@@ -40,7 +40,7 @@ if [ -v SSH_USERS ]; then
         _GID=${UA[2]}
 
         echo ">> Adding user ${_NAME} with uid: ${_UID}, gid: ${_GID}."
-        if [ ! -e " /etc/authorized_keys/${_NAME}" ]; then
+        if [ ! -e "/etc/authorized_keys/${_NAME}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         fi
         addgroup -g ${_GID} ${_NAME}
@@ -48,7 +48,7 @@ if [ -v SSH_USERS ]; then
     done
 else
     # Warn if no authorized_keys
-    if [ ! -e ~/.ssh/authorized_keys ] && [ ! $(ls -A /etc/authorized_keys) ]; then
+    if [ ! -e ~/.ssh/authorized_keys ] && [ -z "$(ls -A /etc/authorized_keys)" ]; then
       echo "WARNING: No SSH authorized_keys found!"
     fi
 fi
