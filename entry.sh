@@ -31,7 +31,7 @@ if [ -w /etc/authorized_keys ]; then
 fi
 
 # Add users if SSH_USERS=user:uid:gid set
-if [ -v SSH_USERS ]; then
+if [ -n "${SSH_USERS}" ]; then
     USERS=$(echo $SSH_USERS | tr "," "\n")
     for U in $USERS; do
         IFS=':' read -ra UA <<< "$U"
