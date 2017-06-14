@@ -12,6 +12,14 @@ Optionally mount a custom sshd config at `/etc/ssh/`.
 
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000`
 - `MOTD` change the login message
+- `SFTP_MODE` if "true" sshd will only accept sftp connections
+- `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
+
+## SFTP mode
+
+When in sftp only mode (activated by setting `SFTP_MODE=true` the container will only accept sftp connections. All sftp actions will be chrooted to the `SFTP_CHROOT` directory which defaults to "/data".
+
+Please note that all components of the pathname in the ChrootDirectory directive must be root-owned directories that are not writable by any other user or group (see man 5 sshd_config).
 
 ## Usage Example
 

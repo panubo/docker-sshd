@@ -59,6 +59,20 @@ if [ -v MOTD ]; then
     echo -e "$MOTD" > /etc/motd
 fi
 
+if [[ "${SFTP_MODE}" == "true" ]]; then
+    : ${SFTP_CHROOT:='/data'}
+    chown 0:0 ${SFTP_CHROOT}
+    chmod 755 ${SFTP_CHROOT}
+
+    printf '%s\n' \
+        'set /files/etc/ssh/sshd_config/Subsystem/sftp "internal-sftp"' \
+        'set /files/etc/ssh/sshd_config/AllowTCPForwarding no' \
+        'set /files/etc/ssh/sshd_config/X11Forwarding no' \
+        'set /files/etc/ssh/sshd_config/ForceCommand internal-sftp' \
+        'set /files/etc/ssh/sshd_config/ChrootDirectory /data' \
+    | augtool -s
+fi
+
 stop() {
     echo "Received SIGINT or SIGTERM. Shutting down $DAEMON"
     # Get PID
