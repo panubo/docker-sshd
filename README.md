@@ -15,6 +15,14 @@ Optionally mount a custom sshd config at `/etc/ssh/`.
 - `SFTP_MODE` if "true" sshd will only accept sftp connections
 - `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
 
+## SSH Host Keys
+
+SSH users host keys to identity the server you are connecting to. So you don't receive a security warning connecting to this container after recreating the container the containers host keys should be mounted externally.
+
+By default this image will create new host keys in `/etc/ssh/keys` which can be mounted externally with docker. If you are using existing keys and mount them in `/etc/ssh` this image will use the default key location making container compatible with existing installations.
+
+If you wish to configure SSH entirely with environment variables it is suggested that you externally mount `/etc/ssh/keys` instead of `/etc/ssh`.
+
 ## SFTP mode
 
 When in sftp only mode (activated by setting `SFTP_MODE=true` the container will only accept sftp connections. All sftp actions will be chrooted to the `SFTP_CHROOT` directory which defaults to "/data".
