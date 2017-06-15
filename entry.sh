@@ -41,7 +41,7 @@ elif ls /etc/ssh/ssh_host_* 1> /dev/null 2>&1; then
     print_fingerprints
 else
     echo ">> Generating new host keys"
-    mkdir /etc/ssh/keys
+    mkdir -p /etc/ssh/keys
     ssh-keygen -A
     mv /etc/ssh/ssh_host_* /etc/ssh/keys/
     set_hostkeys
