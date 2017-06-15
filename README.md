@@ -17,9 +17,9 @@ Optionally mount a custom sshd config at `/etc/ssh/`.
 
 ## SSH Host Keys
 
-SSH users host keys to identity the server you are connecting to. So you don't receive a security warning connecting to this container after recreating the container the containers host keys should be mounted externally.
+SSH uses host keys to identity the server you are connecting to. To avoid receiving security warning the containers host keys should be mounted on an external volume.
 
-By default this image will create new host keys in `/etc/ssh/keys` which can be mounted externally with docker. If you are using existing keys and mount them in `/etc/ssh` this image will use the default key location making container compatible with existing installations.
+By default this image will create new host keys in `/etc/ssh/keys` which should be mounted on an external volume. If you are using existing keys and they are mounted in `/etc/ssh` this image will use the default host key location making this image compatible with existing setups.
 
 If you wish to configure SSH entirely with environment variables it is suggested that you externally mount `/etc/ssh/keys` instead of `/etc/ssh`.
 
