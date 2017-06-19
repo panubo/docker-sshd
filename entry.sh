@@ -75,9 +75,9 @@ if [ -n "${SSH_USERS}" ]; then
         if [ ! -e "/etc/authorized_keys/${_NAME}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         fi
-        addgroup -g ${_GID} ${_NAME}
-        adduser -D -u ${_UID} -G ${_NAME} -s '' ${_NAME}
-        passwd -u ${_NAME}
+        getent group ${_NAME} >/dev/null 2>&1 || addgroup -g ${_GID} ${_NAME}
+        getent passwd ${_NAME} >/dev/null 2>&1 || adduser -D -u ${_UID} -G ${_NAME} -s '' ${_NAME}
+        passwd -u ${_NAME} || true
     done
 else
     # Warn if no authorized_keys
