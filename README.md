@@ -1,6 +1,6 @@
 # SSHD
 
-Minimal Alpine Linux Docker container with `sshd` exposed and `rsync` installed.
+Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
 
 Mount your .ssh credentials (RSA public keys) at `/root/.ssh/` in order to
 access the container via root ssh or mount each user's key in
