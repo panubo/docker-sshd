@@ -75,8 +75,17 @@ if [ -n "${SSH_USERS}" ]; then
         if [ ! -e "/etc/authorized_keys/${_NAME}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         fi
-        getent group ${_NAME} >/dev/null 2>&1 || addgroup -g ${_GID} ${_NAME}
-        getent passwd ${_NAME} >/dev/null 2>&1 || adduser -D -u ${_UID} -G ${_NAME} -s '' ${_NAME}
+
+        G=$(getent group ${_GID})
+        if [ -n "${G}" ]; then
+            IFS=':' read -ra GA <<< "$G"
+            _GN=${GA[0]}
+            getent passwd ${_NAME} >/dev/null 2>&1 || adduser -D -u ${_UID} -G ${_GN} -s '' ${_NAME}
+        else
+            getent group ${_NAME} >/dev/null 2>&1 || addgroup -g ${_GID} ${_NAME}
+            getent passwd ${_NAME} >/dev/null 2>&1 || adduser -D -u ${_UID} -G ${_NAME} -s '' ${_NAME}
+        fi
+
         passwd -u ${_NAME} || true
     done
 else
