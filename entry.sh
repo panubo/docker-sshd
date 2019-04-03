@@ -24,7 +24,7 @@ print_fingerprints() {
     local BASE_DIR=${1-'/etc/ssh'}
     for item in dsa rsa ecdsa ed25519; do
         echo ">>> Fingerprints for ${item} host key"
-        ssh-keygen -E md5 -lf ${BASE_DIR}/ssh_host_${item}_key 
+        ssh-keygen -E md5 -lf ${BASE_DIR}/ssh_host_${item}_key
         ssh-keygen -E sha256 -lf ${BASE_DIR}/ssh_host_${item}_key
         ssh-keygen -E sha512 -lf ${BASE_DIR}/ssh_host_${item}_key
     done
@@ -100,7 +100,7 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
         'set /files/etc/ssh/sshd_config/AllowTCPForwarding no' \
         'set /files/etc/ssh/sshd_config/X11Forwarding no' \
         'set /files/etc/ssh/sshd_config/ForceCommand internal-sftp' \
-        'set /files/etc/ssh/sshd_config/ChrootDirectory /data' \
+        "set /files/etc/ssh/sshd_config/ChrootDirectory ${SFTP_CHROOT}" \
     | augtool -s
 fi
 
