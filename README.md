@@ -40,3 +40,7 @@ or
 ```
 docker run -d -p 2222:22 -v $(pwd)/id_rsa.pub:/etc/authorized_keys/www -e SSH_USERS="www:48:48" docker.io/panubo/sshd
 ```
+
+## Status
+
+Production ready and stable.
