@@ -76,7 +76,7 @@ if [ -n "${SSH_USERS}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         fi
         getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
-        getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '!' -u ${_UID} -g ${_GID} -s '' -c 'SSHD User' ${_NAME}
+        getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '' -u ${_UID} -g ${_GID} -s '' -c 'SSHD User' ${_NAME}
     done
 else
     # Warn if no authorized_keys
