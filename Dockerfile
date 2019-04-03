@@ -1,7 +1,5 @@
 FROM docker.io/alpine:3.6
 
-LABEL maintainer="Andrew Cutler <andrew@panubo.com>"
-
 RUN apk update && \
     apk add bash git openssh rsync augeas shadow && \
     deluser $(getent passwd 33 | cut -d: -f1) && \
