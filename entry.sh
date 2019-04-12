@@ -83,11 +83,13 @@ else
     if [ ! -e ~/.ssh/authorized_keys ] && [ ! $(ls -A /etc/authorized_keys) ]; then
       echo "WARNING: No SSH authorized_keys found!"
     fi
-    if [[ "${SSH_ENABLE_ROOT}" == "true" ]]; then
-      usermod -p '' root  # Unlock root account
-    else
-      echo "WARNING: root account is now locked by default. Set SSH_USERS to unlock the account."
-    fi
+fi
+
+# Unlock root account, if enabled
+if [[ "${SSH_ENABLE_ROOT}" == "true" ]]; then
+    usermod -p '' root
+else
+    echo "WARNING: root account is now locked by default. Set SSH_USERS to unlock the account."
 fi
 
 # Update MOTD
