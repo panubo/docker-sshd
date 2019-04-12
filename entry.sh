@@ -8,7 +8,7 @@ DAEMON=sshd
 
 # Copy default config from cache
 if [ ! "$(ls -A /etc/ssh)" ]; then
-   cp -a /etc/ssh.cache/* /etc/ssh/
+    cp -a /etc/ssh.cache/* /etc/ssh/
 fi
 
 set_hostkeys() {
@@ -81,7 +81,7 @@ if [ -n "${SSH_USERS}" ]; then
 else
     # Warn if no authorized_keys
     if [ ! -e ~/.ssh/authorized_keys ] && [ ! $(ls -A /etc/authorized_keys) ]; then
-      echo "WARNING: No SSH authorized_keys found!"
+        echo "WARNING: No SSH authorized_keys found!"
     fi
 fi
 
