@@ -111,6 +111,12 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
     | augtool -s
 fi
 
+# Enable GatewayPorts
+if [[ "${GATEWAY_PORTS}" == "true" ]]; then
+    echo 'set /files/etc/ssh/sshd_config/GatewayPorts yes' | augtool -s
+fi
+
+
 stop() {
     echo "Received SIGINT or SIGTERM. Shutting down $DAEMON"
     # Get PID
