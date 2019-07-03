@@ -15,7 +15,7 @@ Optionally mount a custom sshd config at `/etc/ssh/`.
 - `MOTD` change the login message
 - `SFTP_MODE` if "true" sshd will only accept sftp connections
 - `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
-- `GATWAY_PORTS` if "true" sshd will allow gateway ports (port forwardings not bound to the loopback address)
+- `GATEWAY_PORTS` if "true" sshd will allow gateway ports (port forwardings not bound to the loopback address)
 
 ## SSH Host Keys
 
