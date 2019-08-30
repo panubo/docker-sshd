@@ -54,7 +54,7 @@ Let's say you have a docker volume mounted to `/data` inside the container. If i
 ```
 #!/bin/bash
 
-if [[ ! $(ls -A /data) ]]; then
+if [[ -z $(ls -A /data) ]]; then
     mkdir /data/foo
     mkdir /data/bar
     chown www: /data/foo /data/bar
