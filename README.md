@@ -43,6 +43,8 @@ or
 docker run -d -p 2222:22 -v $(pwd)/.ssh/id_rsa.pub:/etc/authorized_keys/www -e SSH_USERS="www:48:48" docker.io/panubo/sshd:1.0.3
 ```
 
+or use the provided docker-compose example file.
+
 ## Status
 
 Production ready and stable.

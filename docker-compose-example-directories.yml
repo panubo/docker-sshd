@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  sshd:
+    image: panubo/sshd
+    container_name: sshd
+    restart: always
+    ports:
+      - "2222:22"
+    volumes:
+      - "/your_data_directory/upload/:/data/upload/:rw"
+      - "/your_data_directory/download/:/data/download/:ro"
+      
+#     SSH host keys to identity the server you are connecting to. 
+#     To avoid receiving security warning the containers host keys can be persisted here.
+      - "/your_container_config_directory_directory/host_keys/:/etc/ssh/keys/"
+
+#     Put each user's key in user_keys/<username> and set SSH_USERS config to create user accounts below.
+      - "/your_container_config_directory_directory/user_keys/:/etc/authorized_keys/"
+
+#     Only needed without the SSH_USERS but with SSH_ENABLE_ROOT set. 
+#     Will add the public key in your home as the key for the root user in the container.
+#      - "${HOME}/.ssh/id_rsa.pub:/root/.ssh/authorized_keys"
+
+    environment:
+      SSH_ENABLE_ROOT: "false"
+      SFTP_MODE: "true"
+      SSH_USERS: "root:1000:1000,userA:1001:1001,userB:1002:1002"
