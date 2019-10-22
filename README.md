@@ -12,6 +12,7 @@ Optionally mount a custom sshd config at `/etc/ssh/`.
 
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000`
 - `SSH_ENABLE_ROOT` if "true" unlock the root account
+- `SSH_PASSWORD_AUTH` if "false" disable password authentication
 - `MOTD` change the login message
 - `SFTP_MODE` if "true" sshd will only accept sftp connections
 - `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
