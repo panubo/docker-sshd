@@ -8,4 +8,4 @@ before_script:
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 script:
-  - docker build --pull --build-arg ARCH=$ARCH -t local/sshd:$TAG .
+  - docker build --pull --platform=$ARCH -t local/sshd:$TAG .
