@@ -1,6 +1,10 @@
 dist: bionic
 language: bash
 
+branches:
+  only:
+  - master
+
 env:
   global:
   - DOCKER_HUB_USER=jenswbe
