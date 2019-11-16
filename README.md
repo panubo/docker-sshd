@@ -1,5 +1,7 @@
 # SSHD
 
+[![Build Status](https://travis-ci.org/JenswBE/docker-sshd.svg?branch=master)](https://travis-ci.org/JenswBE/docker-sshd)
+
 Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
 
 Mount your .ssh credentials (RSA public keys) at `/root/.ssh/` in order to
