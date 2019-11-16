@@ -1,0 +1,11 @@
+env:
+  - TAG=i386     ARCH=i386
+  - TAG=amd64    ARCH=amd64
+  - TAG=armhf    ARCH=arm32v7
+  - TAG=aarch64  ARCH=arm64v8
+
+before_script:
+  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+
+script:
+  - docker build --pull --build-arg ARCH=$ARCH -t local/sshd:$TAG .
