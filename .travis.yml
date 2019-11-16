@@ -24,4 +24,4 @@ before_script:
   - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
 
 script:
-  - docker buildx build --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64 --push -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO} .
+  - docker buildx build --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x --push -t ${DOCKER_HUB_USER}/${DOCKER_HUB_REPO} .
