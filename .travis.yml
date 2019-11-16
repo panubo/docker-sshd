@@ -1,3 +1,8 @@
+language: bash
+
+services:
+  - docker
+
 env:
   - TAG=i386     ARCH=i386
   - TAG=amd64    ARCH=amd64
@@ -5,6 +10,8 @@ env:
   - TAG=aarch64  ARCH=arm64v8
 
 before_script:
+  - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+  - sudo service docker restart
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 script:
