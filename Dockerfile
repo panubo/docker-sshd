@@ -1,4 +1,4 @@
-FROM docker.io/alpine:3.6
+FROM alpine:3.10
 
 RUN apk update && \
     apk add bash git openssh rsync augeas shadow && \
