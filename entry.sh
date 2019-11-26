@@ -19,7 +19,7 @@ set_hostkeys() {
         'set /files/etc/ssh/sshd_config/HostKey[2] /etc/ssh/keys/ssh_host_dsa_key' \
         'set /files/etc/ssh/sshd_config/HostKey[3] /etc/ssh/keys/ssh_host_ecdsa_key' \
         'set /files/etc/ssh/sshd_config/HostKey[4] /etc/ssh/keys/ssh_host_ed25519_key' \
-    | augtool -s
+    | augtool -s 1> /dev/null
 }
 
 print_fingerprints() {
@@ -89,6 +89,7 @@ fi
 
 # Unlock root account, if enabled
 if [[ "${SSH_ENABLE_ROOT}" == "true" ]]; then
+    echo ">> Unlocking root account"
     usermod -p '' root
 else
     echo "WARNING: root account is now locked by default. Set SSH_ENABLE_ROOT to unlock the account."
@@ -110,12 +111,12 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
         'set /files/etc/ssh/sshd_config/X11Forwarding no' \
         'set /files/etc/ssh/sshd_config/ForceCommand internal-sftp' \
         "set /files/etc/ssh/sshd_config/ChrootDirectory ${SFTP_CHROOT}" \
-    | augtool -s
+    | augtool -s 1> /dev/null
 fi
 
 # Enable GatewayPorts
 if [[ "${GATEWAY_PORTS}" == "true" ]]; then
-    echo 'set /files/etc/ssh/sshd_config/GatewayPorts yes' | augtool -s
+    echo 'set /files/etc/ssh/sshd_config/GatewayPorts yes' | augtool -s 1> /dev/null
 fi
 
 stop() {
