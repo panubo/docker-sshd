@@ -33,14 +33,30 @@ Please note that all components of the pathname in the ChrootDirectory directive
 
 ## Usage Example
 
+The example below will run interactively and bind to port `2222`. `/data` will be
+bind mounted to the host. And the ssh host keys will be persisted in a `keys`
+directory.
+
+You can access with `ssh root@localhost -p 2222` using your private key.
+
 ```
-docker run -d -p 2222:22 -v /secrets/id_rsa.pub:/root/.ssh/authorized_keys -v /mnt/data/:/data/ -e SSH_ENABLE_ROOT=true docker.io/panubo/sshd:1.0.3
+docker run -ti -p 2222:22 \
+  -v ${HOME}/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro \
+  -v $(pwd)/keys/:/etc/ssh/keys \
+  -v $(pwd)/data/:/data/ \
+  -e SSH_ENABLE_ROOT=true \
+  docker.io/panubo/sshd:1.0.3
 ```
 
-or
+Create a `www` user with gid/uid 48. You can access with `ssh www@localhost -p 2222` using your private key.
 
 ```
-docker run -d -p 2222:22 -v $(pwd)/.ssh/id_rsa.pub:/etc/authorized_keys/www -e SSH_USERS="www:48:48" docker.io/panubo/sshd:1.0.3
+docker run -ti -p 2222:22 \
+  -v ${HOME}/.ssh/id_rsa.pub:/etc/authorized_keys/www:ro \
+  -v $(pwd)/keys/:/etc/ssh/keys \
+  -v $(pwd)/data/:/data/ \
+  -e SSH_USERS="www:48:48" \
+  docker.io/panubo/sshd:1.0.3
 ```
 
 ## Status
