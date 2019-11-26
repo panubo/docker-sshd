@@ -6,6 +6,8 @@ set -e
 
 DAEMON=sshd
 
+echo "> Starting SSHD"
+
 # Copy default config from cache
 if [ ! "$(ls -A /etc/ssh)" ]; then
     cp -a /etc/ssh.cache/* /etc/ssh/
@@ -32,11 +34,11 @@ print_fingerprints() {
 
 # Generate Host keys, if required
 if ls /etc/ssh/keys/ssh_host_* 1> /dev/null 2>&1; then
-    echo ">> Host keys in keys directory"
+    echo ">> Found host keys in keys directory"
     set_hostkeys
     print_fingerprints /etc/ssh/keys
 elif ls /etc/ssh/ssh_host_* 1> /dev/null 2>&1; then
-    echo ">> Host keys exist in default location"
+    echo ">> Found Host keys in default location"
     # Don't do anything
     print_fingerprints
 else
