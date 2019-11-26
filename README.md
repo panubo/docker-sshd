@@ -4,9 +4,9 @@ Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
 
 Mount your .ssh credentials (RSA public keys) at `/root/.ssh/` in order to
 access the container via root and set `SSH_ENABLE_ROOT=true` or mount each user's key in
-`/etc/authorized_keys/<username>` and set `SSH_USERS` config to create user accounts (see below).
+`/etc/authorized_keys/<username>` and set `SSH_USERS` config to create the user accounts (see below).
 
-Optionally mount a custom sshd config at `/etc/ssh/`.
+Optionally mount a custom sshd config at `/etc/ssh/sshd_config`.
 
 ## Environment Options
 
@@ -29,7 +29,7 @@ If you wish to configure SSH entirely with environment variables it is suggested
 
 When in sftp only mode (activated by setting `SFTP_MODE=true` the container will only accept sftp connections. All sftp actions will be chrooted to the `SFTP_CHROOT` directory which defaults to "/data".
 
-Please note that all components of the pathname in the ChrootDirectory directive must be root-owned directories that are not writable by any other user or group (see man 5 sshd_config).
+Please note that all components of the pathname in the ChrootDirectory directive must be root-owned directories that are not writable by any other user or group (see `man 5 sshd_config`).
 
 ## Usage Example
 
