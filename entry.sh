@@ -89,7 +89,7 @@ fi
 if [[ "${SSH_ENABLE_ROOT}" == "true" ]]; then
     usermod -p '' root
 else
-    echo "WARNING: root account is now locked by default. Set SSH_USERS to unlock the account."
+    echo "WARNING: root account is now locked by default. Set SSH_ENABLE_ROOT to unlock the account."
 fi
 
 # Update MOTD
