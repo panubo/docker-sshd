@@ -98,7 +98,7 @@ if [ -v MOTD ]; then
 fi
 
 # PasswordAuthentication (disabled by default)
-if [[ "${SSH_PASSWORD_AUTH}" == "true" ]]; then
+if [[ "${SSH_ENABLE_PASSWORD_AUTH}" == "true" ]]; then
     echo 'set /files/etc/ssh/sshd_config/PasswordAuthentication yes' | augtool -s 1> /dev/null
     echo "WARNING: password authentication enabled."
 else
