@@ -74,7 +74,7 @@ docker run -ti -p 2222:22 \
 Up until this point all releases have been backwards compatible.
 This will be updated if future breaking changes are required.
 
-For production use please use the latest release rather than the floating 'latest' tag.
+For production usage, please use a versioned release rather than the floating 'latest' tag.
 
 ## Status
 
