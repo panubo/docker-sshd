@@ -118,7 +118,7 @@ if [ -v MOTD ]; then
     echo -e "$MOTD" > /etc/motd
 fi
 
-# Enable SFTP only mode
+# SFTP only mode
 if [[ "${SFTP_MODE}" == "true" ]]; then
     : ${SFTP_CHROOT:='/data'}
     chown 0:0 ${SFTP_CHROOT}
@@ -127,15 +127,20 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
     printf '%s\n' \
         'set /files/etc/ssh/sshd_config/Subsystem/sftp "internal-sftp"' \
         'set /files/etc/ssh/sshd_config/AllowTCPForwarding no' \
+        'set /files/etc/ssh/sshd_config/GatewayPorts no' \
         'set /files/etc/ssh/sshd_config/X11Forwarding no' \
         'set /files/etc/ssh/sshd_config/ForceCommand internal-sftp' \
         "set /files/etc/ssh/sshd_config/ChrootDirectory ${SFTP_CHROOT}" \
     | augtool -s 1> /dev/null
-fi
-
-# Enable GatewayPorts
-if [[ "${GATEWAY_PORTS}" == "true" ]]; then
-    echo 'set /files/etc/ssh/sshd_config/GatewayPorts yes' | augtool -s 1> /dev/null
+else
+    # Enable AllowTcpForwarding
+    if [[ "${TCP_FORWARDING}" == "true" ]]; then
+        echo 'set /files/etc/ssh/sshd_config/AllowTcpForwarding yes' | augtool -s 1> /dev/null
+    fi
+    # Enable GatewayPorts
+    if [[ "${GATEWAY_PORTS}" == "true" ]]; then
+        echo 'set /files/etc/ssh/sshd_config/GatewayPorts yes' | augtool -s 1> /dev/null
+    fi
 fi
 
 stop() {

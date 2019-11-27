@@ -11,7 +11,8 @@ Configure the container with the following environment variables or optionally m
 - `MOTD` change the login message
 - `SFTP_MODE` if "true" sshd will only accept sftp connections
 - `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
-- `GATEWAY_PORTS` if "true" sshd will allow gateway ports (port forwardings not bound to the loopback address)
+- `GATEWAY_PORTS` if "true" sshd will allow gateway ports
+- `TCP_FORWARDING` if "true" sshd will allow TCP forwarding
 
 ## SSH Host Keys
 
