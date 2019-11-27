@@ -72,10 +72,10 @@ docker run -ti -p 2222:22 \
 
 ## Releases
 
-Up until this point all releases have been backwards compatible.
-This will be updated if future breaking changes are required.
-
 For production usage, please use a versioned release rather than the floating 'latest' tag.
+
+See the [releases](https://github.com/panubo/docker-sshd/releases) for tag usage
+and release notes.
 
 ## Status
 
