@@ -56,7 +56,7 @@ docker run -ti -p 2222:22 \
   -v $(pwd)/keys/:/etc/ssh/keys \
   -v $(pwd)/data/:/data/ \
   -e SSH_ENABLE_ROOT=true \
-  docker.io/panubo/sshd:1.0.5
+  docker.io/panubo/sshd:1.1.0
 ```
 
 Create a `www` user with gid/uid 48. You can access with `ssh www@localhost -p 2222` using your private key.
@@ -67,7 +67,7 @@ docker run -ti -p 2222:22 \
   -v $(pwd)/keys/:/etc/ssh/keys \
   -v $(pwd)/data/:/data/ \
   -e SSH_USERS="www:48:48" \
-  docker.io/panubo/sshd:1.0.5
+  docker.io/panubo/sshd:1.1.0
 ```
 
 ## Releases
