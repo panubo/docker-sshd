@@ -39,8 +39,8 @@ check_authorized_key_ownership() {
     local uid_found="$(stat -c %u ${file})"
     local gid_found="$(stat -c %g ${file})"
 
-    if ! ( [[ ( "$uid_found" == "$_uid" ) && ( "$uid_found" == "$_gid" ) ]] || [[ ( "$uid_found" == "0" ) && ( "$uid_found" == "0" ) ]] ); then
-        echo "WARNING: Incorrect ownership for ${file}. Expected uid: $_uid gid: $_gid, found uid: $uid_found gid: $gid_found. File uid/gid must match SSH_USERS or be root owned."
+    if ! ( [[ ( "$uid_found" == "$_uid" ) && ( "$gid_found" == "$_gid" ) ]] || [[ ( "$uid_found" == "0" ) && ( "$gid_found" == "0" ) ]] ); then
+        echo "WARNING: Incorrect ownership for ${file}. Expected uid/gid: ${_uid}/${_gid}, found uid/gid: ${uid_found}/${gid_found}. File uid/gid must match SSH_USERS or be root owned."
     fi
 }
 
