@@ -119,11 +119,10 @@ fi
 # Run scripts in /etc/entrypoint.d
 for f in /etc/entrypoint.d/*; do
     if [[ -x ${f} ]]; then
-        echo "Running: ${f}"
+        echo ">> Running: ${f}"
         ${f}
     fi
 done
-
 
 stop() {
     echo "Received SIGINT or SIGTERM. Shutting down $DAEMON"
