@@ -118,6 +118,15 @@ if [ -v MOTD ]; then
     echo -e "$MOTD" > /etc/motd
 fi
 
+# PasswordAuthentication (disabled by default)
+if [[ "${SSH_ENABLE_PASSWORD_AUTH}" == "true" ]]; then
+    echo 'set /files/etc/ssh/sshd_config/PasswordAuthentication yes' | augtool -s 1> /dev/null
+    echo "WARNING: password authentication enabled."
+else
+    echo 'set /files/etc/ssh/sshd_config/PasswordAuthentication no' | augtool -s 1> /dev/null
+    echo "INFO: password authentication is disabled by default. Set SSH_ENABLE_PASSWORD_AUTH=true to enable."
+fi
+
 # SFTP only mode
 if [[ "${SFTP_MODE}" == "true" ]]; then
     : ${SFTP_CHROOT:='/data'}
