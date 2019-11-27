@@ -37,6 +37,10 @@ When in sftp only mode (activated by setting `SFTP_MODE=true` the container will
 
 Please note that all components of the pathname in the ChrootDirectory directive must be root-owned directories that are not writable by any other user or group (see `man 5 sshd_config`).
 
+## Custom Scripts
+
+Executable shell scripts and binaries can be mounted or copied in to `/etc/entrypoint.d`. These will be run when the container is launched but before sshd is started. These can be used to customise the behaviour of the container.
+
 ## Usage Example
 
 The example below will run interactively and bind to port `2222`. `/data` will be
