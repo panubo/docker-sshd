@@ -103,7 +103,7 @@ if [[ "${SSH_ENABLE_PASSWORD_AUTH}" == "true" ]]; then
     echo "WARNING: password authentication enabled."
 else
     echo 'set /files/etc/ssh/sshd_config/PasswordAuthentication no' | augtool -s 1> /dev/null
-    echo "INFO: password authentication is disabled by default. Set SSH_PASSWORD_AUTH=true to enable."
+    echo "INFO: password authentication is disabled by default. Set SSH_ENABLE_PASSWORD_AUTH=true to enable."
 fi
 
 if [[ "${SFTP_MODE}" == "true" ]]; then
