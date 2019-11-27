@@ -18,5 +18,5 @@ push: ## Pushes the docker image to hub.docker.com
 	docker push $(IMAGE_NAME):latest
 
 clean: ## Remove built images
-	docker rmi $(IMAGE_NAME):latest
-	docker rmi $(IMAGE_NAME):$(TAG)
+	docker rmi $(IMAGE_NAME):latest || true
+	docker rmi $(IMAGE_NAME):$(TAG) || true
