@@ -8,7 +8,7 @@ DAEMON=sshd
 
 echo "> Starting SSHD"
 
-# Copy default config from cache
+# Copy default config from cache, if required
 if [ ! "$(ls -A /etc/ssh)" ]; then
     cp -a /etc/ssh.cache/* /etc/ssh/
 fi
@@ -32,6 +32,18 @@ print_fingerprints() {
     done
 }
 
+check_authorized_key_ownership() {
+    local file="$1"
+    local _uid="$2"
+    local _gid="$3"
+    local uid_found="$(stat -c %u ${file})"
+    local gid_found="$(stat -c %g ${file})"
+
+    if ! ( [[ ( "$uid_found" == "$_uid" ) && ( "$gid_found" == "$_gid" ) ]] || [[ ( "$uid_found" == "0" ) && ( "$gid_found" == "0" ) ]] ); then
+        echo "WARNING: Incorrect ownership for ${file}. Expected uid/gid: ${_uid}/${_gid}, found uid/gid: ${uid_found}/${gid_found}. File uid/gid must match SSH_USERS or be root owned."
+    fi
+}
+
 # Generate Host keys, if required
 if ls /etc/ssh/keys/ssh_host_* 1> /dev/null 2>&1; then
     echo ">> Found host keys in keys directory"
@@ -50,7 +62,8 @@ else
     print_fingerprints /etc/ssh/keys
 fi
 
-# Fix permissions, if writable
+# Fix permissions, if writable.
+# NB ownership of /etc/authorized_keys are not changed
 if [ -w ~/.ssh ]; then
     chown root:root ~/.ssh && chmod 700 ~/.ssh/
 fi
@@ -61,7 +74,10 @@ fi
 if [ -w /etc/authorized_keys ]; then
     chown root:root /etc/authorized_keys
     chmod 755 /etc/authorized_keys
-    find /etc/authorized_keys/ -type f -exec chmod 644 {} \;
+    # test for writability before attempting chmod
+    for f in $(find /etc/authorized_keys/ -type f -maxdepth 1); do
+        [ -w "${f}" ] && chmod 644 "${f}"
+    done
 fi
 
 # Add users if SSH_USERS=user:uid:gid set
@@ -76,6 +92,8 @@ if [ -n "${SSH_USERS}" ]; then
         echo ">> Adding user ${_NAME} with uid: ${_UID}, gid: ${_GID}."
         if [ ! -e "/etc/authorized_keys/${_NAME}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
+        else
+            check_authorized_key_ownership /etc/authorized_keys/${_NAME} ${_UID} ${_GID}
         fi
         getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
         getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '' -u ${_UID} -g ${_GID} -s '' -c 'SSHD User' ${_NAME}
@@ -92,7 +110,7 @@ if [[ "${SSH_ENABLE_ROOT}" == "true" ]]; then
     echo ">> Unlocking root account"
     usermod -p '' root
 else
-    echo "WARNING: root account is now locked by default. Set SSH_ENABLE_ROOT to unlock the account."
+    echo "INFO: root account is now locked by default. Set SSH_ENABLE_ROOT to unlock the account."
 fi
 
 # Update MOTD
@@ -100,6 +118,7 @@ if [ -v MOTD ]; then
     echo -e "$MOTD" > /etc/motd
 fi
 
+# Enable SFTP only mode
 if [[ "${SFTP_MODE}" == "true" ]]; then
     : ${SFTP_CHROOT:='/data'}
     chown 0:0 ${SFTP_CHROOT}
@@ -122,7 +141,7 @@ fi
 stop() {
     echo "Received SIGINT or SIGTERM. Shutting down $DAEMON"
     # Get PID
-    pid=$(cat /var/run/$DAEMON/$DAEMON.pid)
+    local pid=$(cat /var/run/$DAEMON/$DAEMON.pid)
     # Set TERM
     kill -SIGTERM "${pid}"
     # Wait for exit
