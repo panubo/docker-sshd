@@ -33,7 +33,7 @@ Please note that all components of the pathname in the ChrootDirectory directive
 
 ## Custom Scripts
 
-Executable shell scripts and binaries can be mounted or copied  to `/etc/entrypoint.d` inside the container. These scripts will be run when the container is launched but before sshd is started. A common use case is to adjust the ownership and permissions of files (for example, public SSH keys) so that sshd will read them.
+Executable shell scripts and binaries can be mounted or copied in to `/etc/entrypoint.d`. These will be run when the container is launched but before sshd is started. These can be used to customise the behaviour of the container.
 
 ## Usage Example
 
@@ -45,38 +45,6 @@ or
 
 ```
 docker run -d -p 2222:22 -v $(pwd)/.ssh/id_rsa.pub:/etc/authorized_keys/www -e SSH_USERS="www:48:48" docker.io/panubo/sshd:1.0.3
-```
-
-### Custom Script Example
-
-Let's say you have a docker volume mounted to `/data` inside the container. If it's empty, it should be populated with subdirectories owned by the `www` user. You could do that with this script, called `provision_data.sh`:
-
-```
-#!/bin/bash
-
-if [[ -z $(ls -A /data) ]]; then
-    mkdir /data/foo
-    mkdir /data/bar
-    chown www: /data/foo /data/bar
-fi
-```
-
-Make sure it is execuable:
-
-```
-$ chmod ugo+x provision_data.sh
-```
-
-And then bind-mount it in when starting the container:
-
-```
-$ docker run -d \
-    -p 2222:22 \
-    -v $(pwd)/.ssh/id_rsa.pub:/etc/authorized_keys/www
-    -v $(pwd)/data:/data \
-    -v $(pwd)/provision_data.sh:/etc/entrypoint.d/provision_data.sh \
-    -e SSH_USERS="www:48:48" \
-    docker.io/panubo/sshd
 ```
 
 ## Status
