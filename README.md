@@ -42,6 +42,46 @@ Please note that all components of the pathname in the ChrootDirectory directive
 
 Executable shell scripts and binaries can be mounted or copied in to `/etc/entrypoint.d`. These will be run when the container is launched but before sshd is started. These can be used to customise the behaviour of the container.
 
+## Password authentication
+
+**Password authentication is not recommended** however using `SSH_ENABLE_PASSWORD_AUTH=true` you can enable password authentication. The image doesn't provide any way to set user passwords via config but you can use the custom scripts support to run a custom script to set user passwords.
+
+For example you could add the following script to `/etc/entrypoint.d/`
+
+**setpasswd.sh**
+
+```bash
+#!/usr/bin/env bash
+
+set -e
+
+echo 'user1:$6$lAkdPbeeZR7YJiE3$ohWgU3LcSVit/hEZ2VOVKvxD.67.N9h5v4ML7.4X51ZK3kABbTPHkZUPzN9jxQQWXtkLctI0FJZR8CChIwz.S/' | chpasswd --encrypted
+
+# Or if you don't pre-hash the password remove the line above and uncomment the line below.
+# echo "user1:user1password" | chpasswd
+```
+
+It is strongly recommend to pre-hash passwords. Passwords that are not hashed are a security risk, other users may be able to read the `setpasswd.sh` script and see all other users passwords and keeping plain text passwords is considered bad practice.
+
+To generate a hashed password use `mkpasswd` which is available in this image or use [https://trnubo.github.io/passwd.html](https://trnubo.github.io/passwd.html) to generate a hash in your browser. Example use of `mkpasswd` below.
+
+```
+$ docker run --rm -it --entrypoint /usr/bin/env docker.io/panubo/sshd:1.1.0 mkpasswd
+Password:
+$6$w0ZvF/gERVgv08DI$PTq73dIcZLfMK/Kxlw7rWDvVcYvnWJuOWtxC7sXAYZL69CnItCS.QM.nTUyMzaT0aYjDBdbCH1hDiwbQE8/BY1
+```
+
+To start sshd with the `setpasswd.sh` script
+
+```
+docker run -ti -p 2222:22 \
+  -v $(pwd)/keys/:/etc/ssh/keys \
+  -e SSH_USERS=user1:1000:1000 \
+  -e SSH_ENABLE_PASSWORD_AUTH=true \
+  -v $(pwd)/entrypoint.d/:/etc/entrypoint.d/ \
+  docker.io/panubo/sshd:1.1.0
+```
+
 ## Usage Example
 
 The example below will run interactively and bind to port `2222`. `/data` will be
