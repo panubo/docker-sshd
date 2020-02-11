@@ -12,6 +12,7 @@ Configure the container with the following environment variables or optionally m
 - `MOTD` change the login message
 - `SFTP_MODE` if "true" sshd will only accept sftp connections
 - `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
+- `SCP_MODE` if "true" sshd will only accept scp connections
 - `GATEWAY_PORTS` if "true" sshd will allow gateway ports
 - `TCP_FORWARDING` if "true" sshd will allow TCP forwarding
 
@@ -34,9 +35,15 @@ uid/gid and user specified in `SSH_USERS`.
 
 ## SFTP mode
 
-When in sftp only mode (activated by setting `SFTP_MODE=true` the container will only accept sftp connections. All sftp actions will be chrooted to the `SFTP_CHROOT` directory which defaults to "/data".
+When in sftp only mode (activated by setting `SFTP_MODE=true`) the container will only accept sftp connections. All sftp actions will be chrooted to the `SFTP_CHROOT` directory which defaults to "/data".
 
 Please note that all components of the pathname in the ChrootDirectory directive must be root-owned directories that are not writable by any other user or group (see `man 5 sshd_config`).
+
+## SCP mode
+
+When in scp only mode (activated by setting `SCP_MODE=true`) the container will only accept scp connections. No chroot provided.
+
+This is provided using [rssh](http://www.pizzashack.org/rssh/) restricted shell.
 
 ## Custom Scripts
 

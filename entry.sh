@@ -141,6 +141,13 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
         'set /files/etc/ssh/sshd_config/ForceCommand internal-sftp' \
         "set /files/etc/ssh/sshd_config/ChrootDirectory ${SFTP_CHROOT}" \
     | augtool -s 1> /dev/null
+elif [[ "${SCP_MODE}" == "true" ]]; then
+    USERS=$(echo $SSH_USERS | tr "," "\n")
+    for U in $USERS; do
+        _NAME=$(echo "${U}" | cut -d: -f1)
+        usermod -s '/usr/bin/rssh' ${_NAME}
+    done
+    (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowscp") > /etc/rssh.conf
 else
     # Enable AllowTcpForwarding
     if [[ "${TCP_FORWARDING}" == "true" ]]; then
