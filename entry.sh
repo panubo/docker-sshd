@@ -178,7 +178,8 @@ if [ "$(basename $1)" == "$DAEMON" ]; then
     $@ &
     pid="$!"
     mkdir -p /var/run/$DAEMON && echo "${pid}" > /var/run/$DAEMON/$DAEMON.pid
-    wait "${pid}" && exit $?
+    wait "${pid}"
+    exit $?
 else
     exec "$@"
 fi
