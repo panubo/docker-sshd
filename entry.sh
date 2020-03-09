@@ -129,10 +129,10 @@ fi
 
 # SFTP only mode
 if [[ "${SFTP_MODE}" == "true" ]]; then
+    echo "INFO: configuring sftp only mode"
     : ${SFTP_CHROOT:='/data'}
     chown 0:0 ${SFTP_CHROOT}
     chmod 755 ${SFTP_CHROOT}
-
     printf '%s\n' \
         'set /files/etc/ssh/sshd_config/Subsystem/sftp "internal-sftp"' \
         'set /files/etc/ssh/sshd_config/AllowTCPForwarding no' \
@@ -142,12 +142,21 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
         "set /files/etc/ssh/sshd_config/ChrootDirectory ${SFTP_CHROOT}" \
     | augtool -s 1> /dev/null
 elif [[ "${SCP_MODE}" == "true" ]]; then
+  echo "INFO: configuring scp only mode"
     USERS=$(echo $SSH_USERS | tr "," "\n")
     for U in $USERS; do
         _NAME=$(echo "${U}" | cut -d: -f1)
         usermod -s '/usr/bin/rssh' ${_NAME}
     done
     (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowscp") > /etc/rssh.conf
+elif [[ "${RSYNC_MODE}" == "true" ]]; then
+  echo "INFO: configuring rsync only mode"
+    USERS=$(echo $SSH_USERS | tr "," "\n")
+    for U in $USERS; do
+        _NAME=$(echo "${U}" | cut -d: -f1)
+        usermod -s '/usr/bin/rssh' ${_NAME}
+    done
+    (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowrsync") > /etc/rssh.conf
 else
     # Enable AllowTcpForwarding
     if [[ "${TCP_FORWARDING}" == "true" ]]; then

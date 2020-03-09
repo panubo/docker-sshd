@@ -6,15 +6,33 @@ Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
 
 Configure the container with the following environment variables or optionally mount a custom sshd config at `/etc/ssh/sshd_config`:
 
+### General Options
+
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000`
 - `SSH_ENABLE_ROOT` if "true" unlock the root account
 - `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default)
 - `MOTD` change the login message
-- `SFTP_MODE` if "true" sshd will only accept sftp connections
-- `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
-- `SCP_MODE` if "true" sshd will only accept scp connections
+
+### SSH Options
+
 - `GATEWAY_PORTS` if "true" sshd will allow gateway ports
 - `TCP_FORWARDING` if "true" sshd will allow TCP forwarding
+
+The following three optional modes, SFTP, SCP and Rsync are mutually exclusive. Only one can be
+enabled at a time:
+
+### SFTP Only
+
+- `SFTP_MODE` if "true" sshd will only accept sftp connections
+- `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
+
+### SCP Only
+
+- `SCP_MODE` if "true" sshd will only accept scp connections (uses rssh)
+
+### Rsync Only
+
+- `RSYNC_MODE` if "true" sshd will only accept rsync connections (uses rssh)
 
 ## SSH Host Keys
 
