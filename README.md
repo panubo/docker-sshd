@@ -57,11 +57,11 @@ When in sftp only mode (activated by setting `SFTP_MODE=true`) the container wil
 
 Please note that all components of the pathname in the ChrootDirectory directive must be root-owned directories that are not writable by any other user or group (see `man 5 sshd_config`).
 
-## SCP mode
+## SCP or Rsync modes
 
-When in scp only mode (activated by setting `SCP_MODE=true`) the container will only accept scp connections. No chroot provided.
+When in scp or rsync only mode (activated by setting `SCP_MODE=true` or `RSYNC_MODE=true` respectively) the container will only accept scp or rsync connections. No chroot is provided.
 
-This is provided using [rssh](http://www.pizzashack.org/rssh/) restricted shell.
+This is provided by using [rssh](http://www.pizzashack.org/rssh/) restricted shell.
 
 ## Custom Scripts
 
