@@ -100,7 +100,7 @@ if [ -n "${SSH_USERS}" ]; then
     done
 else
     # Warn if no authorized_keys
-    if [ ! -e ~/.ssh/authorized_keys ] && [ ! $(ls -A /etc/authorized_keys) ]; then
+    if [ ! -e ~/.ssh/authorized_keys ] && [ ! "$(ls -A /etc/authorized_keys)" ]; then
         echo "WARNING: No SSH authorized_keys found!"
     fi
 fi
