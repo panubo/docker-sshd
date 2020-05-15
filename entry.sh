@@ -109,6 +109,7 @@ fi
 if [[ "${SSH_ENABLE_ROOT}" == "true" ]]; then
     echo ">> Unlocking root account"
     usermod -p '' root
+    echo 'set /files/etc/ssh/sshd_config/PermitRootLogin yes' | augtool -s >/dev/null
 else
     echo "INFO: root account is now locked by default. Set SSH_ENABLE_ROOT to unlock the account."
 fi
