@@ -89,7 +89,7 @@ if [ -n "${SSH_USERS}" ]; then
         _UID=${UA[1]}
         _GID=${UA[2]}
         _SHELL=''
-        if [ ${#UA[*]} >= 4 ]; then
+        if [ ${#UA[*]} -ge 4 ]; then
             _SHELL=${UA[3]}
         fi
         if [ _SHELL == '' ]; then
