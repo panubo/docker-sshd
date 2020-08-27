@@ -88,15 +88,20 @@ if [ -n "${SSH_USERS}" ]; then
         _NAME=${UA[0]}
         _UID=${UA[1]}
         _GID=${UA[2]}
+        if [ ${#UA[*]} -eq 4 ]; then
+            _SHELL=${UA[3]}
+        else
+            _SHELL=''
+        fi
 
-        echo ">> Adding user ${_NAME} with uid: ${_UID}, gid: ${_GID}."
+        echo ">> Adding user ${_NAME} with uid: ${_UID}, gid: ${_GID}, shell: ${_SHELL:-<default>}."
         if [ ! -e "/etc/authorized_keys/${_NAME}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         else
             check_authorized_key_ownership /etc/authorized_keys/${_NAME} ${_UID} ${_GID}
         fi
         getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
-        getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '' -u ${_UID} -g ${_GID} -s '' -c 'SSHD User' ${_NAME}
+        getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '' -u ${_UID} -g ${_GID} -s ${_SHELL} -c 'SSHD User' ${_NAME}
     done
 else
     # Warn if no authorized_keys
