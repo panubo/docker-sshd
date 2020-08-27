@@ -90,6 +90,8 @@ if [ -n "${SSH_USERS}" ]; then
         _GID=${UA[2]}
         if [ ${#UA[*]} -eq 4 ]; then
             _SHELL=${UA[3]}
+        else
+          _SHELL=''
         fi
 
         echo ">> Adding user ${_NAME} with uid: ${_UID}, gid: ${_GID}, shell: ${_SHELL:-<default>}."
