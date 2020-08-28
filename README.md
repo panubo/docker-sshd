@@ -17,26 +17,31 @@ Configure the container with the following environment variables or optionally m
 
 - `GATEWAY_PORTS` if "true" sshd will allow gateway ports
 - `TCP_FORWARDING` if "true" sshd will allow TCP forwarding
+- `DISABLE_SFTP` if "true" sshd will not accept sftp connections. Note: This does not
+prevent file access unless you define a restricted shell for each user that prevents executing
+programs that grant file access.
 
-The following three optional modes, SFTP, SCP and Rsync are mutually exclusive. Only one can be
-enabled at a time:
+### Restricted Modes
 
-### SFTP Only
+The following three restricted modes, SFTP only, SCP only and Rsync only are mutually exclusive. If no mode is defined,
+then all connection types will be accepted. Only one mode can be enabled at a time:
+
+#### SFTP Only
 
 - `SFTP_MODE` if "true" sshd will only accept sftp connections
 - `SFTP_CHROOT` if in sftp only mode sftp will be chrooted to this directory. Default "/data"
 
-### SCP Only
+#### SCP Only
 
 - `SCP_MODE` if "true" sshd will only accept scp connections (uses rssh)
 
-### Rsync Only
+#### Rsync Only
 
 - `RSYNC_MODE` if "true" sshd will only accept rsync connections (uses rssh)
 
 ## SSH Host Keys
 
-SSH uses host keys to identify the server. To avoid receiving security warning the host keys should be mounted on an external volume.
+SSH uses host keys to identify the server. To avoid receiving a security warning the host keys should be mounted on an external volume.
 
 By default this image will create new host keys in `/etc/ssh/keys` which should be mounted on an external volume. If you are using existing keys and they are mounted in `/etc/ssh` this image will use the default host key location making this image compatible with existing setups.
 
