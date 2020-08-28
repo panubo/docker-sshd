@@ -132,8 +132,7 @@ else
     echo "INFO: password authentication is disabled by default. Set SSH_ENABLE_PASSWORD_AUTH=true to enable."
 fi
 
-# SFTP only mode
-if [[ "${SFTP_MODE}" == "true" ]]; then
+configure_sftp_only_mode() {
     echo "INFO: configuring sftp only mode"
     : ${SFTP_CHROOT:='/data'}
     chown 0:0 ${SFTP_CHROOT}
@@ -146,23 +145,29 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
         'set /files/etc/ssh/sshd_config/ForceCommand internal-sftp' \
         "set /files/etc/ssh/sshd_config/ChrootDirectory ${SFTP_CHROOT}" \
     | augtool -s 1> /dev/null
-elif [[ "${SCP_MODE}" == "true" ]]; then
-  echo "INFO: configuring scp only mode"
+}
+
+configure_scp_only_mode() {
+    echo "INFO: configuring scp only mode"
     USERS=$(echo $SSH_USERS | tr "," "\n")
     for U in $USERS; do
         _NAME=$(echo "${U}" | cut -d: -f1)
         usermod -s '/usr/bin/rssh' ${_NAME}
     done
     (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowscp") > /etc/rssh.conf
-elif [[ "${RSYNC_MODE}" == "true" ]]; then
-  echo "INFO: configuring rsync only mode"
+}
+
+configure_rsync_only_mode() {
+    echo "INFO: configuring rsync only mode"
     USERS=$(echo $SSH_USERS | tr "," "\n")
     for U in $USERS; do
         _NAME=$(echo "${U}" | cut -d: -f1)
         usermod -s '/usr/bin/rssh' ${_NAME}
     done
     (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowrsync") > /etc/rssh.conf
-else
+}
+
+configure_ssh_options() {
     # Enable AllowTcpForwarding
     if [[ "${TCP_FORWARDING}" == "true" ]]; then
         echo 'set /files/etc/ssh/sshd_config/AllowTcpForwarding yes' | augtool -s 1> /dev/null
@@ -171,6 +176,24 @@ else
     if [[ "${GATEWAY_PORTS}" == "true" ]]; then
         echo 'set /files/etc/ssh/sshd_config/GatewayPorts yes' | augtool -s 1> /dev/null
     fi
+    # Disable SFTP
+    if [[ "${DISABLE_SFTP}" == "true" ]]; then
+        printf '%s\n' \
+            'rm /files/etc/ssh/sshd_config/Subsystem/sftp' \
+            'rm /files/etc/ssh/sshd_config/Subsystem' \
+        | augtool -s 1> /dev/null
+    fi
+}
+
+# Configure mutually exclusive modes
+if [[ "${SFTP_MODE}" == "true" ]]; then
+    configure_sftp_only_mode
+elif [[ "${SCP_MODE}" == "true" ]]; then
+    configure_scp_only_mode
+elif [[ "${RSYNC_MODE}" == "true" ]]; then
+    configure_rsync_only_mode
+else
+    configure_ssh_options
 fi
 
 # Run scripts in /etc/entrypoint.d
