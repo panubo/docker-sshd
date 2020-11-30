@@ -1,4 +1,4 @@
-FROM alpine:3.12
+FROM python:3-alpine
 
 RUN apk update && \
     apk add bash git openssh rsync augeas shadow rssh && \
