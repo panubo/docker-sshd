@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# Use manifest-tool to create the manifest, given the experimental
+# "docker manifest" command isn't available yet on Docker Hub.
+
+curl -Lo manifest-tool https://github.com/estesp/manifest-tool/releases/download/v0.9.0/manifest-tool-linux-amd64
+chmod +x manifest-tool
+
+# Generate the manifest file.
+# Parameter 1 is the multi-arch image name, e.g. ckulka/baikal:0.5.1
+# Parameter 2 is the base-image for the variants, e.g. ckulka/baikal:0.5.1-apache
+function generate_manifest {
+  NAME=$1
+  RELEASE_TAG=$2
+  
+  cat > manifest-generated.yaml << EOF
+image: ${NAME}:${RELEASE_TAG}
+manifests:
+  - image: ${NAME}:${RELEASE_TAG}-amd64
+    platform:
+      architecture: amd64
+      os: linux
+  - image: ${NAME}:${RELEASE_TAG}-arm32v7
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
+  - image: ${NAME}:${RELEASE_TAG}-arm64v8
+    platform:
+      architecture: arm
+      os: linux
+      variant: v8
+EOF
+
+  echo "manifest: "
+  cat manifest-generated.yaml
+}
+
+function generate_manifest_branch {
+  NAME=$1
+  RELEASE_TAG=$2
+  
+  cat > manifest-generated.yaml << EOF
+image: ${NAME}:latest
+manifests:
+  - image: ${NAME}:amd64
+    platform:
+      architecture: amd64
+      os: linux
+  - image: ${NAME}:arm32v7
+    platform:
+      architecture: arm
+      os: linux
+      variant: v7
+  - image: ${NAME}:arm64v8
+    platform:
+      architecture: arm
+      os: linux
+      variant: v8
+EOF
+
+  echo "manifest: "
+  cat manifest-generated.yaml
+}
+
+function docker_tag_exists() {
+    curl --silent -f -lSL https://index.docker.io/v1/repositories/$1/tags/$2 > /dev/null
+}
+
+# Example: values
+# ${DOCKER_REPO} = index.docker.io/guysoft/custompios-test
+# ${IMAGE_NAME} = index.docker.io/guysoft/custompios-test:1.2.4-amd64
+# ${DOCKER_TAG} = 1.2.4-amd64
+
+
+REPO_NAME=${IMAGE_NAME##*/} ; REPO_NAME=${REPO_NAME%%:*}
+REPO_NAME_AND_USER=${IMAGE_NAME%%/${REPO_NAME}*}
+USER_NAME=${REPO_NAME_AND_USER##*/}
+
+NAME=${USER_NAME}/${REPO_NAME}
+  
+# If we're building the "devel" branch, then also push it as "latest"
+if [[ "$DOCKER_TAG" == "amd64" ]] || [[ "$DOCKER_TAG" == "arm32v7" ]] || [[ "$DOCKER_TAG" == "arm64v8" ]]
+then
+  echo "Pushing multi-arch manifest $NAME"
+  generate_manifest_branch "$NAME"
+  ./manifest-tool push from-spec manifest-generated.yaml
+
+# Handle release
+else
+  echo "handeling: ${DOCKER_REPO}|${IMAGE_NAME}|${DOCKER_TAG}"
+  
+  RELEASE_TAG=${DOCKER_TAG%%-*}
+  
+  # Example: values
+  # ${NAME} = guysoft/custompios
+  # ${RELEASE_TAG} = 1.2.3
+  
+  generate_manifest "${NAME}" "${RELEASE_TAG}"
+  
+  if docker_tag_exists ${NAME} ${RELEASE_TAG}-amd64 ;then
+    if docker_tag_exists ${NAME} ${RELEASE_TAG}-arm32v7;then
+      echo "Pushing multi-arch manifest"
+      ./manifest-tool push from-spec manifest-generated.yaml
+    else
+      echo "arm32v7 image is missing, not pushing manifest"
+    fi
+    
+  else
+    echo "amd64 image is missing, not pushing manifest"
+  fi
+
+fi
