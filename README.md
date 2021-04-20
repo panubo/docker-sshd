@@ -22,6 +22,9 @@ Configure the container with the following environment variables or optionally m
 prevent file access unless you define a restricted shell for each user that prevents executing
 programs that grant file access.
 
+### SSH Logs
+- mount path `/var/log`
+
 ### Restricted Modes
 
 The following three restricted modes, SFTP only, SCP only and Rsync only are mutually exclusive. If no mode is defined,
