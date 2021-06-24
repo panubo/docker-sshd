@@ -76,7 +76,7 @@ Executable shell scripts and binaries can be mounted or copied in to `/etc/entry
 ## Password authentication
 
 **Password authentication is not recommended** however using `SSH_ENABLE_PASSWORD_AUTH=true` you can enable password authentication. The image doesn't provide any way to set user passwords via config but you can use the custom scripts support to run a custom script to set user passwords.
-The `SSH_ENABLE_ROOT_PASSWORD_AUTH=true` also enable password authentification for the root account.
+Setting `SSH_ENABLE_ROOT_PASSWORD_AUTH=true` also enables password authentification for the root account.
 
 For example you could add the following script to `/etc/entrypoint.d/`
 
@@ -114,7 +114,7 @@ docker run -ti -p 2222:22 \
   docker.io/panubo/sshd:1.3.0
 ```
 
-To enable also password on the root account, the previous `setpasswd.sh` script must aslo define a password for the root user, then
+To enable password authentication on the root account, the previous `setpasswd.sh` script must also define a password for the root user, then
 the command will be:
 
 ```
