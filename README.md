@@ -10,7 +10,8 @@ Configure the container with the following environment variables or optionally m
 
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000:/bin/bash`. The fourth argument for specifying the user shell is optional
 - `SSH_ENABLE_ROOT` if "true" unlock the root account
-- `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default)
+- `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default) (excluding the root user)
+- `SSH_ENABLE_ROOT_PASSWORD_AUTH` if "true" enable password authentication for all users including root
 - `MOTD` change the login message
 
 ### SSH Options
@@ -75,6 +76,7 @@ Executable shell scripts and binaries can be mounted or copied in to `/etc/entry
 ## Password authentication
 
 **Password authentication is not recommended** however using `SSH_ENABLE_PASSWORD_AUTH=true` you can enable password authentication. The image doesn't provide any way to set user passwords via config but you can use the custom scripts support to run a custom script to set user passwords.
+Setting `SSH_ENABLE_ROOT_PASSWORD_AUTH=true` also enables password authentification for the root account.
 
 For example you could add the following script to `/etc/entrypoint.d/`
 
@@ -110,6 +112,16 @@ docker run -ti -p 2222:22 \
   -e SSH_ENABLE_PASSWORD_AUTH=true \
   -v $(pwd)/entrypoint.d/:/etc/entrypoint.d/ \
   docker.io/panubo/sshd:1.4.0
+```
+
+To enable password authentication on the root account, the previous `setpasswd.sh` script must also define a password for the root user, then
+the command will be:
+
+```
+docker run -ti -p 2222:22 \
+  -e SSH_ENABLE_ROOT_PASSWORD_AUTH=true \
+  -v $(pwd)/entrypoint.d/:/etc/entrypoint.d/ \
+  docker.io/panubo/sshd:1.3.0
 ```
 
 ## Usage Example
