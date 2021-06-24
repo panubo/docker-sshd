@@ -10,8 +10,8 @@ Configure the container with the following environment variables or optionally m
 
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000:/bin/bash`. The fourth argument for specifying the user shell is optional
 - `SSH_ENABLE_ROOT` if "true" unlock the root account
-- `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default) (for all user but not for the root)
-- `SSH_ENABLE_ROOT_PASSWORD_AUTH` if "true" enable password authentication also for root user (this define also `SSH_ENABLE_PASSWORD_AUTH`)
+- `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default) (excluding the root user)
+- `SSH_ENABLE_ROOT_PASSWORD_AUTH` if "true" enable password authentication for all users including root
 - `MOTD` change the login message
 
 ### SSH Options
