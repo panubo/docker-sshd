@@ -16,15 +16,14 @@ fi
 set_hostkeys() {
     printf '%s\n' \
         'set /files/etc/ssh/sshd_config/HostKey[1] /etc/ssh/keys/ssh_host_rsa_key' \
-        'set /files/etc/ssh/sshd_config/HostKey[2] /etc/ssh/keys/ssh_host_dsa_key' \
-        'set /files/etc/ssh/sshd_config/HostKey[3] /etc/ssh/keys/ssh_host_ecdsa_key' \
-        'set /files/etc/ssh/sshd_config/HostKey[4] /etc/ssh/keys/ssh_host_ed25519_key' \
+        'set /files/etc/ssh/sshd_config/HostKey[2] /etc/ssh/keys/ssh_host_ecdsa_key' \
+        'set /files/etc/ssh/sshd_config/HostKey[3] /etc/ssh/keys/ssh_host_ed25519_key' \
     | augtool -s 1> /dev/null
 }
 
 print_fingerprints() {
     local BASE_DIR=${1-'/etc/ssh'}
-    for item in dsa rsa ecdsa ed25519; do
+    for item in rsa ecdsa ed25519; do
         echo ">>> Fingerprints for ${item} host key"
         ssh-keygen -E md5 -lf ${BASE_DIR}/ssh_host_${item}_key
         ssh-keygen -E sha256 -lf ${BASE_DIR}/ssh_host_${item}_key
