@@ -1,8 +1,12 @@
----
+# Source: https://github.com/panubo/reference-github-actions/blob/main/dockerhub-build-cron.yml
+# Description: Rebuild images from specified branch on cron schedule
+# LICENSE: MIT License, Copyright (c) 2021-2022 Volt Grid Pty Ltd t/a Panubo
 
 name: Build Images Cron
 
-# Rebuild images from master branch every Sunday
+env:
+  BRANCH: "main"
+  REPO_NAME: panubo/sshd
 
 on:
   schedule:
@@ -15,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: main
+          ref: ${{ env.BRANCH }}
 
       - name: Get build tag
         id: get_build_tag
@@ -58,5 +62,4 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
           tags: |
-            panubo/sshd:latest
-            panubo/sshd:${{ steps.get_build_tag.outputs.tag }}
+            ${REPO_NAME}:latest
