@@ -2,7 +2,7 @@
 # Description: Rebuild images from specified branch on cron schedule
 # LICENSE: MIT License, Copyright (c) 2021-2022 Volt Grid Pty Ltd t/a Panubo
 
-name: Build Images Cron
+name: Docker Hub Build and Push (Cron)
 
 env:
   BRANCH: "main"
@@ -62,4 +62,4 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache
           tags: |
-            ${REPO_NAME}:latest
+            ${{ env.REPO_NAME }}:latest
