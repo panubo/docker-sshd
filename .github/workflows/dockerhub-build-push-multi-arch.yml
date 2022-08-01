@@ -12,6 +12,8 @@ env:
   REPO_NAME: docker.io/panubo/sshd
 
 on:
+  schedule:
+    - cron: "0 0 * * 0"
   push:
     branches:
       - main
@@ -34,12 +36,10 @@ jobs:
             ${{ env.REPO_NAME }}
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
+            type=schedule,pattern=weekly
+            type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=sha
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
