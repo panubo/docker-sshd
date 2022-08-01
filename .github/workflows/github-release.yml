@@ -1,11 +1,13 @@
-# Source: https://github.com/panubo/reference-github-actions/blob/master/github-release.yml
+# Source: https://github.com/panubo/reference-github-actions/blob/main/github-release.yml
+# Description: Create a GitHub release
+# LICENSE: MIT License, Copyright (c) 2021-2022 Volt Grid Pty Ltd t/a Panubo
+
+name: GitHub Release
 
 on:
   push:
     tags:
-      - '*'
-
-name: GitHub Release
+      - 'v*'
 
 jobs:
   build:
@@ -14,14 +16,14 @@ jobs:
     steps:
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Get Release Notes
         id: get_release_notes
         run: |
-          NOTES=$(git log --pretty=format:%s $(git tag --sort=-refname | head -1)...$(git tag --sort=-refname | head -2 | tail -1) | awk '{ print "-", $0  }')
+          NOTES=$(git log --pretty=format:%s $(git tag --sort=-v:refname | head -1)...$(git tag --sort=-v:refname | head -2 | tail -1) | awk '{ print "-", $0  }')
           NOTES="${NOTES//'%'/'%25'}"
           NOTES="${NOTES//$'\n'/'%0A'}"
           NOTES="${NOTES//$'\r'/'%0D'}"
