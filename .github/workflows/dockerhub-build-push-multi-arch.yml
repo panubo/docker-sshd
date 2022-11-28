@@ -9,7 +9,7 @@
 name: Docker Hub Build and Push (Multi-arch)
 
 env:
-  REPO_NAME: docker.io/panubo/sshd
+  REPO_NAME: panubo/sshd
 
 on:
   schedule:
@@ -29,11 +29,12 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v3
+        uses: docker/metadata-action@v4
         with:
           # list of Docker images to use as base name for tags
           images: |
-            ${{ env.REPO_NAME }}
+            docker.io/${{ env.REPO_NAME }}
+            quay.io/${{ env.REPO_NAME }}
           # generate Docker tags based on the following events/attributes
           tags: |
             type=schedule,pattern=weekly
@@ -42,7 +43,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         id: buildx
@@ -54,6 +55,14 @@ jobs:
         with:
           username: ${{ secrets.PANUBUILD_DOCKERHUB_USERNAME }}
           password: ${{ secrets.PANUBUILD_DOCKERHUB_TOKEN }}
+
+      - name: Login to Quay.io
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.PANUBUILD_QUAYIO_USERNAME }}
+          password: ${{ secrets.PANUBUILD_QUAYIO_TOKEN }}
 
       - name: Build and Push
         uses: docker/build-push-action@v3
