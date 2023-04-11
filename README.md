@@ -1,6 +1,6 @@
 # SSHD
 
-Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
+Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed. The image is available on quay.io `quay.io/panubo/sshd` and AWS ECR Public `public.ecr.aws/panubo/sshd`.
 
 ## Environment Options
 
@@ -98,7 +98,7 @@ It is strongly recommend to pre-hash passwords. Passwords that are not hashed ar
 To generate a hashed password use `mkpasswd` which is available in this image or use [https://trnubo.github.io/passwd.html](https://trnubo.github.io/passwd.html) to generate a hash in your browser. Example use of `mkpasswd` below.
 
 ```
-$ docker run --rm -it --entrypoint /usr/bin/env docker.io/panubo/sshd:1.4.0 mkpasswd
+$ docker run --rm -it --entrypoint /usr/bin/env quay.io/panubo/sshd:1.6.0 mkpasswd
 Password:
 $6$w0ZvF/gERVgv08DI$PTq73dIcZLfMK/Kxlw7rWDvVcYvnWJuOWtxC7sXAYZL69CnItCS.QM.nTUyMzaT0aYjDBdbCH1hDiwbQE8/BY1
 ```
@@ -111,7 +111,7 @@ docker run -ti -p 2222:22 \
   -e SSH_USERS=user:1000:1000 \
   -e SSH_ENABLE_PASSWORD_AUTH=true \
   -v $(pwd)/entrypoint.d/:/etc/entrypoint.d/ \
-  docker.io/panubo/sshd:1.4.0
+  quay.io/panubo/sshd:1.6.0
 ```
 
 To enable password authentication on the root account, the previous `setpasswd.sh` script must also define a password for the root user, then
@@ -121,7 +121,7 @@ the command will be:
 docker run -ti -p 2222:22 \
   -e SSH_ENABLE_ROOT_PASSWORD_AUTH=true \
   -v $(pwd)/entrypoint.d/:/etc/entrypoint.d/ \
-  docker.io/panubo/sshd:1.3.0
+  quay.io/panubo/sshd:1.6.0
 ```
 
 ## Usage Example
@@ -138,7 +138,7 @@ docker run -ti -p 2222:22 \
   -v $(pwd)/keys/:/etc/ssh/keys \
   -v $(pwd)/data/:/data/ \
   -e SSH_ENABLE_ROOT=true \
-  docker.io/panubo/sshd:1.4.0
+  quay.io/panubo/sshd:1.6.0
 ```
 
 Create a `www` user with gid/uid 48. You can access with `ssh www@localhost -p 2222` using your private key.
@@ -149,7 +149,7 @@ docker run -ti -p 2222:22 \
   -v $(pwd)/keys/:/etc/ssh/keys \
   -v $(pwd)/data/:/data/ \
   -e SSH_USERS="www:48:48" \
-  docker.io/panubo/sshd:1.4.0
+  quay.io/panubo/sshd:1.6.0
 ```
 
 ## Releases

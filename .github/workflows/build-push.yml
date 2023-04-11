@@ -1,0 +1,103 @@
+name: build and push on main and tags
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+-[0-9]+
+  pull_request:
+
+env:
+  GITHUB_ROLE_ARN: arn:aws:iam::461800378586:role/GitHubECRPublic
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  build_and_push:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get repo name
+        id: image_name
+        run: |
+          sed -E -e 's/docker-//' -e 's/^/image_name=/' <<<"${{ github.repository }}" >> "$GITHUB_OUTPUT"
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            quay.io/${{ steps.image_name.outputs.image_name }}
+            public.ecr.aws/${{ steps.image_name.outputs.image_name }}
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            # type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            # type=sha
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      # The values provided to these two AWS steps are always the same for Panubo owned repos
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          role-to-assume: ${{ env.GITHUB_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: public.ecr.aws
+
+      - name: Login to Quay.io
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.PANUBUILD_QUAYIO_USERNAME }}
+          password: ${{ secrets.PANUBUILD_QUAYIO_TOKEN }}
+
+      # - name: Setup BATS
+      #   uses: mig4/setup-bats@v1
+      #   with:
+      #     bats-version: 1.7.0
+
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v4
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-from: type=gha
+          load: true
+          tags: ${{ steps.image_name.outputs.image_name }}:test
+
+      # - name: Test
+      #   run: |
+      #     make _ci_test
+
+      - name: Build and Push
+        uses: docker/build-push-action@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          push: ${{ github.event_name != 'pull_request' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
