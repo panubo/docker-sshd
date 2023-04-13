@@ -1,3 +1,15 @@
+# Panubo build and push to Quay.io and ECR Public
+# This GH Action is intended for public docker images that package upstream applications/services (ie not for projects of Panubo's).
+# For repos that build multiple repos use the multi-build-push.yml workflow.
+#
+# This workflow runs on pushes to "main", PRs (does not push) or matching git tags.
+# Image names are generated from the repository name, if "docker-" is part of the repository name it is removed from the docker image name.
+#
+# Additionally this workflow performs some automated testing after a docker build.
+# Automated testing is triggered by `make _ci_test`, if no test is required the Makefile target should just run `true`.
+# Before tests are run a Docker build is performed, the resulting image has a tag of "test"
+# BATS is installed since it is commonly required by the tests.
+
 name: build and push on main and tags
 
 on:
@@ -5,8 +17,7 @@ on:
     branches:
       - main
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+
-      - v[0-9]+.[0-9]+.[0-9]+-[0-9]+
+      - v[0-9]+.[0-9]+.[0-9]+*
   pull_request:
 
 env:
@@ -44,6 +55,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=match,pattern=v(.*),group=1
             # type=sha
 
       - name: Set up QEMU
@@ -74,10 +86,10 @@ jobs:
           username: ${{ secrets.PANUBUILD_QUAYIO_USERNAME }}
           password: ${{ secrets.PANUBUILD_QUAYIO_TOKEN }}
 
-      # - name: Setup BATS
-      #   uses: mig4/setup-bats@v1
-      #   with:
-      #     bats-version: 1.7.0
+      - name: Setup BATS
+        uses: panubo/setup-bats-action@v2
+        with:
+          bats-version: 1.7.0
 
       - name: Build and export to Docker
         uses: docker/build-push-action@v4
@@ -87,9 +99,9 @@ jobs:
           load: true
           tags: ${{ steps.image_name.outputs.image_name }}:test
 
-      # - name: Test
-      #   run: |
-      #     make _ci_test
+      - name: Test
+        run: |
+          make _ci_test
 
       - name: Build and Push
         uses: docker/build-push-action@v3
