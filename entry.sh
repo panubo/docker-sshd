@@ -204,6 +204,18 @@ else
     configure_ssh_options
 fi
 
+# Configure supervisor
+mkdir -p /var/log/supervisor
+touch /var/log/supervisor/supervisord.log
+
+## Configure sshd
+# Log to syslog
+sed -i -r -e 's/^#(SyslogFacility)/\1/' /etc/ssh/sshd_config
+sed -i -r -e 's/^#(LogLevel)/\1/' /etc/ssh/sshd_config
+sed -i -r -e 's/^(authpriv\.\*)/auth.*,\1/' /etc/rsyslog.conf
+# http://fail2ban.org/wiki/index.php/OpenSSH
+sed -i -r -e 's/^#(UseDNS)/\1/' /etc/ssh/sshd_config
+
 # Run scripts in /etc/entrypoint.d
 for f in /etc/entrypoint.d/*; do
     if [[ -x ${f} ]]; then
