@@ -81,7 +81,6 @@ fi
 
 # Add groups if SSH_GROUPS=group:gid set
 if [ -n "${SSH_GROUPS}" ]; then
-    USERS=$(echo $SSH_USERS | tr "," "\n")
     GROUPZ=$(echo $SSH_GROUPS | tr "," "\n")
     for G in $GROUPZ; do
         IFS=':' read -ra GA <<< "$G"
