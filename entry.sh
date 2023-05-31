@@ -79,6 +79,18 @@ if [ -w /etc/authorized_keys ]; then
     done
 fi
 
+# Add groups if SSH_GROUPS=group:gid set
+if [ -n "${SSH_GROUPS}" ]; then
+    GROUPZ=$(echo $SSH_GROUPS | tr "," "\n")
+    for G in $GROUPZ; do
+        IFS=':' read -ra GA <<< "$G"
+        _NAME=${GA[0]}
+        _GID=${GA[1]}
+        echo ">> Adding group ${_NAME} with gid: ${_GID}."
+        getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
+    done
+fi
+
 # Add users if SSH_USERS=user:uid:gid set
 if [ -n "${SSH_USERS}" ]; then
     USERS=$(echo $SSH_USERS | tr "," "\n")
@@ -99,7 +111,9 @@ if [ -n "${SSH_USERS}" ]; then
         else
             check_authorized_key_ownership /etc/authorized_keys/${_NAME} ${_UID} ${_GID}
         fi
-        getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
+        if [ -z "${SSH_GROUPS}" ]; then
+            getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
+        fi
         getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '' -u ${_UID} -g ${_GID} -s ${_SHELL:-""} -c 'SSHD User' ${_NAME}
     done
 else
