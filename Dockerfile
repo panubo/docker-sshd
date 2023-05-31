@@ -1,7 +1,7 @@
-FROM alpine:3.14
+FROM alpine:3.18
 
 RUN apk update && \
-    apk add bash git openssh rsync augeas shadow rssh && \
+    apk add --no-cache bash git openssh rsync augeas shadow rssh && \
     deluser $(getent passwd 33 | cut -d: -f1) && \
     delgroup $(getent group 33 | cut -d: -f1) 2>/dev/null || true && \
     mkdir -p ~root/.ssh /etc/authorized_keys && chmod 700 ~root/.ssh/ && \

@@ -20,3 +20,6 @@ push: ## Pushes the docker image to hub.docker.com
 clean: ## Remove built images
 	docker rmi $(IMAGE_NAME):latest || true
 	docker rmi $(IMAGE_NAME):$(TAG) || true
+
+_ci_test:
+	echo "NOOP"
