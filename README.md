@@ -10,7 +10,7 @@ Configure the container with the following environment variables or optionally m
 
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000:/bin/bash`. The fourth argument for specifying the user shell is optional. If `SSH_GROUPS` is omitted, a group is created for each user with the same name as the user.
 - `SSH_GROUPS` list of groups and gids to create. eg `SSH_GROUPS=guests:1005,other:1006`. Specifying this option disables automatic group creation of user-named groups if you also specify `SSH_USERS`.
-- `SSH_ENABLE_ROOT` if "true" unlock the root account
+- `SSH_ENABLE_ROOT` if "true" unlock the root account. N.B restricted modes to not apply to this account.
 - `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default) (excluding the root user)
 - `SSH_ENABLE_ROOT_PASSWORD_AUTH` if "true" enable password authentication for all users including root
 - `MOTD` change the login message
