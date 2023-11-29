@@ -1,0 +1,47 @@
+# Source: https://github.com/panubo/reference-github-actions/blob/main/github-release.yml
+# Description: Create a GitHub release
+# LICENSE: MIT License, Copyright (c) 2021-2022 Volt Grid Pty Ltd t/a Panubo
+
+name: GitHub Release net tools
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Release Notes
+        id: get_release_notes
+        run: |
+          NOTES=$(git log --pretty=format:%s $(git tag --sort=-v:refname | head -1)...$(git tag --sort=-v:refname | head -2 | tail -1) | awk '{ print "-", $0  }')
+          NOTES="${NOTES//'%'/'%25'}"
+          NOTES="${NOTES//$'\n'/'%0A'}"
+          NOTES="${NOTES//$'\r'/'%0D'}"
+          echo "NOTES: ${NOTES}"
+          echo "::set-output name=notes::${NOTES}"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            Changes since last release:
+
+            ${{ steps.get_release_notes.outputs.notes }}
+
+          draft: true
+          prerelease: false
