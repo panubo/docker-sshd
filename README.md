@@ -2,6 +2,12 @@
 
 Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed. The image is available on quay.io `quay.io/panubo/sshd` and AWS ECR Public `public.ecr.aws/panubo/sshd`.
 
+<!-- BEGIN_TOP_PANUBO -->
+> [!IMPORTANT]
+> **Maintained by Panubo** — Cloud Native & SRE Consultants in Sydney.
+> [Work with us →](https://panubo.com.au)
+<!-- END_TOP_PANUBO -->
+
 ## Environment Options
 
 Configure the container with the following environment variables or optionally mount a custom sshd config at `/etc/ssh/sshd_config`:
@@ -163,3 +169,20 @@ and release notes.
 ## Status
 
 Production ready and stable.
+
+<!-- BEGIN_BOTTOM_PANUBO -->
+> [!IMPORTANT]
+> ## About Panubo
+>
+> This project is maintained by Panubo, a technology consultancy based in Sydney, Australia. We build reliable, scalable systems and help teams master the cloud-native ecosystem.
+>
+> We are available for hire to help with:
+>
+> * SRE & Operations: Improving system reliability and incident response.
+> * Platform Engineering: Building internal developer platforms that scale.
+> * Kubernetes: Cluster design, security auditing, and migrations.
+> * DevOps: Streamlining CI/CD pipelines and developer experience.
+> * [See our other services](https://panubo.com.au/services)
+>
+> Need a hand with your infrastructure? [Let’s have a chat](https://panubo.com.au/contact) or email us at team@panubo.com.
+<!-- END_BOTTOM_PANUBO -->
