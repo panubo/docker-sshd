@@ -1,0 +1,79 @@
+# Source: https://github.com/panubo/reference-github-actions/blob/main/docker-images/update-registry-metadata.yml
+
+name: Update Registry Metadata
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_ROLE_ARN: arn:aws:iam::461800378586:role/GitHubECRPublic
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  update_repo_metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Get repo name
+        id: image_name
+        run: |
+          sed -E -e 's/docker-//' -e 's/^/image_name=/' <<<"${{ github.repository }}" >> "$GITHUB_OUTPUT"
+
+      - name: Get repo description
+        id: repo_description
+        run: |
+          description=$(gh repo view ${{ github.repository }} --json description -q .description)
+          echo "description=$description" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # There are numerous issues with extracting a Usage section
+      # * Varying levels of header ie "# Usage" or "## Usage"
+      # * The match should continue until the next header of the same level or a higher level
+      # * The next header could be indented in a quote or alert/note eg "> # Next Section"
+      # * The section name could differ, Usage | usage | Install | Example etc
+      # Note: if we put this back in it needs to be added to the Update Catalog Data step
+      # - name: Extract Usage from README
+      #   id: usage
+      #   run: |
+      #     if awk '/^#+ *Install \/ Usage/{flag=1; next} /^#+/{flag=0} flag' README.md | grep -q .; then
+      #       usage=$(awk '/^#+ *Install \/ Usage/{flag=1; next} /^#+/{flag=0} flag' README.md)
+      #       echo "usage<<EOF" >> "$GITHUB_OUTPUT"
+      #       echo "$usage" >> "$GITHUB_OUTPUT"
+      #       echo "EOF" >> "$GITHUB_OUTPUT"
+      #     fi
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.GITHUB_ROLE_ARN }}
+          aws-region: us-east-1 # ECR Public is in us-east-1
+
+      - name: Update ECR Repository Catalog Data
+        env:
+          # ECR only wants the image_name not owner/image_name so we add image_name as an env then strip the owner with bash variable manipulation
+          IMAGE_NAME: ${{ steps.image_name.outputs.image_name }}
+        run: |
+          set -x
+          aws ecr-public get-repository-catalog-data --repository-name ${IMAGE_NAME#*/} > catalog-data.json
+          if [[ -n "${{ steps.repo_description.outputs.description }}" ]]; then
+            jq --arg description "${{ steps.repo_description.outputs.description }}" '.catalogData.description = $description' catalog-data.json > catalog-data.json.tmp && mv catalog-data.json.tmp catalog-data.json
+          fi
+          jq --arg about "$(cat README.md)" --arg repo "${IMAGE_NAME#*/}" '.catalogData.aboutText = $about | .repositoryName = $repo | del(.catalogData.logoUrl)' catalog-data.json > catalog-data.json.tmp && mv catalog-data.json.tmp catalog-data.json
+          aws ecr-public put-repository-catalog-data --repository-name ${IMAGE_NAME#*/} --cli-input-json file://catalog-data.json
+
+      - name: Update Quay.io Repository Description
+        run: |
+          JSON_DESCRIPTION="$(jq -n --arg desc "$(<README.md)" '{description: $desc}')"
+          curl -sSf -X PUT \
+            -H "Authorization: Bearer ${{ secrets.PANUBUILD_QUAYIO_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "${JSON_DESCRIPTION}" \
+            'https://quay.io/api/v1/repository/${{ steps.image_name.outputs.image_name }}'

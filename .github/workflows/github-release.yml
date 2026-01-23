@@ -1,6 +1,19 @@
 # Source: https://github.com/panubo/reference-github-actions/blob/main/github-release.yml
 # Description: Create a GitHub release
 # LICENSE: MIT License, Copyright (c) 2021-2025 Volt Grid Pty Ltd t/a Panubo
+#
+# This workflow supports release candidate tags. If a tag contains "-rc" for
+# example "v1.2.3-rc.1" then the release will be marked as a prerelease.
+# Additionally when generating changelog for release notes any RC releases will
+# be ignored.
+#
+# If you want to provide additional release notes you can add a
+# _ci_release_notes to a Makefile in the root of the repo. This will be called
+# while generating the release notes and will be attended to the end of the auto
+# generated release notes. If the command is absent or fails the failure will be
+# ignored. Additionally the tag/ref_name will be passed with TAG="${TAG#v}"
+# which will strip the "v" prefix from the tag, this is useful for listing
+# container images with their tag.
 
 name: GitHub Release
 
@@ -24,23 +37,32 @@ jobs:
           fetch-depth: 0 # Required for git log to work
 
       - name: Get Release Notes
+        env:
+          TAG: ${{ github.ref_name }}
         id: get_release_notes
         run: |
-          NOTES=$(git log --pretty=format:%s $(git tag --sort=-v:refname | head -1)...$(git tag --sort=-v:refname | head -2 | tail -1) | awk '{ print "-", $0  }')
-          printf "notes<<EOF\\n%s\\nEOF\\n" "${NOTES}" >> "$GITHUB_OUTPUT"
+          tag1="$(git -c 'versionsort.suffix=-' tag --sort=-v:refname | head -1)"
+          tag2="$(git -c 'versionsort.suffix=-' tag --sort=-v:refname | grep -v '\-rc' | grep -v -w "${tag1}" | head -1)"
+          {
+            echo 'notes<<EOF'
+            echo "## Changes since last release:"
+            echo
+            git log --graph --pretty=tformat:'%s %H' --abbrev-commit --date=relative "${tag1}"..."${tag2}"
+            echo
+            echo "**Full Changelog**: https://github.com/${GITHUB_REPOSITORY}/compare/${tag2}...${tag1}"
+            # Optionally allow the Makefile to generate some release notes too
+            make _ci_release_notes TAG=${TAG#v} || true
+            echo EOF
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body: |
-            Changes since last release:
-
-            ${{ steps.get_release_notes.outputs.notes }}
-
-          draft: false
-          prerelease: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --notes "${{ steps.get_release_notes.outputs.notes }}" \
+            --draft=false \
+            --prerelease="${{ contains(github.ref, '-rc') }}"
