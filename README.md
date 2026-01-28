@@ -5,10 +5,10 @@
 
 Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
 
-The image is available on quay.io `quay.io/panubo/sshd` and AWS ECR Public `public.ecr.aws/panubo/sshd`.
-
 > [!NOTE]
 > We no longer publish images to Docker Hub. Please use [Quay.io](quay.io/panubo/sshd) or [AWS ECR Public](public.ecr.aws/panubo/sshd).
+
+The image is available on quay.io `quay.io/panubo/sshd` and AWS ECR Public `public.ecr.aws/panubo/sshd`.
 
 <!-- BEGIN_TOP_PANUBO -->
 > [!IMPORTANT]
