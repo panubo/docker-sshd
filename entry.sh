@@ -215,8 +215,10 @@ if [[ "${SFTP_MODE}" == "true" ]]; then
     configure_sftp_only_mode
 elif [[ "${SCP_MODE}" == "true" ]]; then
     configure_scp_only_mode
+    DISABLE_SFTP="${DISABLE_SFTP:-true}" configure_ssh_options
 elif [[ "${RSYNC_MODE}" == "true" ]]; then
     configure_rsync_only_mode
+    DISABLE_SFTP="${DISABLE_SFTP:-true}" configure_ssh_options
 else
     configure_ssh_options
 fi
