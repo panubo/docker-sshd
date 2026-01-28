@@ -18,8 +18,12 @@ push: ## Pushes the docker image to hub.docker.com
 	docker push $(IMAGE_NAME):latest
 
 clean: ## Remove built images
-	docker rmi $(IMAGE_NAME):latest || true
 	docker rmi $(IMAGE_NAME):$(TAG) || true
+	docker rmi $(IMAGE_NAME):$(TAG)-dev || true
 
-_ci_test:
-	echo "NOOP"
+test: clean ## Build a test image and run bats tests in docker
+	docker build --target development -t $(IMAGE_NAME):$(TAG)-dev .
+	docker run --rm -v $(shell pwd):/src -w /src $(IMAGE_NAME):$(TAG)-dev bats test/
+
+_ci_test: test
+	true

@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.20 AS base
 
 RUN apk update && \
     apk add --no-cache bash git openssh rsync augeas shadow rssh && \
@@ -8,12 +8,22 @@ RUN apk update && \
     augtool 'set /files/etc/ssh/sshd_config/AuthorizedKeysFile ".ssh/authorized_keys /etc/authorized_keys/%u"' && \
     echo -e "Port 22\n" >> /etc/ssh/sshd_config && \
     cp -a /etc/ssh /etc/ssh.cache && \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/* \
+    ;
 
 EXPOSE 22
 
 COPY entry.sh /entry.sh
 
-ENTRYPOINT ["/entry.sh"]
+# Development image
+FROM base AS development
 
+RUN apk update && \
+    apk add bats && \
+    rm -rf /var/cache/apk/* \
+    ;
+
+# Release image
+FROM base AS build
+ENTRYPOINT ["/entry.sh"]
 CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config"]
