@@ -1,6 +1,6 @@
 # SSHD
 
-[![Build Status](https://github.com/panubo/docker-sshd/workflows/build-push.yml/badge.svg)](https://github.com/panubo/docker-sshd/actions)
+[![Build Status](https://github.com/panubo/docker-sshd/actions/workflows/build-push.yml/badge.svg)](https://github.com/panubo/docker-sshd/actions)
 [![Release](https://img.shields.io/github/v/release/panubo/docker-sshd)](https://github.com/panubo/docker-sshd/releases/latest)
 [![License](https://img.shields.io/github/license/panubo/docker-sshd.svg)](https://github.com/panubo/docker-sshd/blob/master/LICENSE)
 
