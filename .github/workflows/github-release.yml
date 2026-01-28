@@ -62,7 +62,7 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           gh release create "$TAG" \
-            --title "Release $TAG" \
+            --title "$TAG" \
             --notes "${{ steps.get_release_notes.outputs.notes }}" \
             --draft=false \
             --prerelease="${{ contains(github.ref, '-rc') }}"
