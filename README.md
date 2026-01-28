@@ -1,12 +1,38 @@
 # SSHD
 
-Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed. The image is available on quay.io `quay.io/panubo/sshd` and AWS ECR Public `public.ecr.aws/panubo/sshd`.
+[![Build Status](https://github.com/panubo/docker-sshd/workflows/build-push/badge.svg)](https://github.com/panubo/docker-sshd/actions)
+[![License](https://img.shields.io/github/license/panubo/docker-sshd.svg)](https://github.com/panubo/docker-sshd/blob/master/LICENSE)
+
+Minimal Alpine Linux Docker image with `sshd` exposed and `rsync` installed.
+
+The image is available on quay.io `quay.io/panubo/sshd` and AWS ECR Public `public.ecr.aws/panubo/sshd`.
+
+> [!NOTE]
+> We no longer publish images to Docker Hub. Please use [Quay.io](quay.io/panubo/sshd) or [AWS ECR Public](public.ecr.aws/panubo/sshd).
 
 <!-- BEGIN_TOP_PANUBO -->
 > [!IMPORTANT]
 > **Maintained by Panubo** — Cloud Native & SRE Consultants in Sydney.
 > [Work with us →](https://panubo.com.au)
 <!-- END_TOP_PANUBO -->
+
+## Table of Contents
+
+- [Environment Options](#environment-options)
+  - [General Options](#general-options)
+  - [SSH Options](#ssh-options)
+  - [Restricted Modes](#restricted-modes)
+- [SSH Host Keys](#ssh-host-keys)
+- [Authorized Keys](#authorized-keys)
+- [SFTP mode](#sftp-mode)
+- [SCP or Rsync modes](#scp-or-rsync-modes)
+- [Custom Scripts](#custom-scripts)
+- [Password Authentication](#password-authentication)
+- [Usage Example](#usage-example)
+- [Docker Compose](#docker-compose)
+- [Testing](#testing)
+- [Releases](#releases)
+- [Status](#status)
 
 ## Environment Options
 
@@ -16,7 +42,7 @@ Configure the container with the following environment variables or optionally m
 
 - `SSH_USERS` list of user accounts and uids/gids to create. eg `SSH_USERS=www:48:48,admin:1000:1000:/bin/bash`. The fourth argument for specifying the user shell is optional. If `SSH_GROUPS` is omitted, a group is created for each user with the same name as the user.
 - `SSH_GROUPS` list of groups and gids to create. eg `SSH_GROUPS=guests:1005,other:1006`. Specifying this option disables automatic group creation of user-named groups if you also specify `SSH_USERS`.
-- `SSH_ENABLE_ROOT` if "true" unlock the root account. N.B restricted modes to not apply to this account.
+- `SSH_ENABLE_ROOT` if "true" unlock the root account. Note: restricted modes do not apply to this account.
 - `SSH_ENABLE_PASSWORD_AUTH` if "true" enable password authentication (disabled by default) (excluding the root user)
 - `SSH_ENABLE_ROOT_PASSWORD_AUTH` if "true" enable password authentication for all users including root
 - `MOTD` change the login message
@@ -83,7 +109,7 @@ Executable shell scripts and binaries can be mounted or copied in to `/etc/entry
 ## Password authentication
 
 **Password authentication is not recommended** however using `SSH_ENABLE_PASSWORD_AUTH=true` you can enable password authentication. The image doesn't provide any way to set user passwords via config but you can use the custom scripts support to run a custom script to set user passwords.
-Setting `SSH_ENABLE_ROOT_PASSWORD_AUTH=true` also enables password authentification for the root account.
+Setting `SSH_ENABLE_ROOT_PASSWORD_AUTH=true` also enables password authentication for the root account.
 
 For example you could add the following script to `/etc/entrypoint.d/`
 
@@ -100,19 +126,19 @@ echo 'user1:$6$lAkdPbeeZR7YJiE3$ohWgU3LcSVit/hEZ2VOVKvxD.67.N9h5v4ML7.4X51ZK3kAB
 # echo "user1:user1password" | chpasswd
 ```
 
-It is strongly recommend to pre-hash passwords. Passwords that are not hashed are a security risk, other users may be able to read the `setpasswd.sh` script and see all other users passwords and keeping plain text passwords is considered bad practice.
+It is strongly recommended to pre-hash passwords. Passwords that are not hashed are a security risk, other users may be able to read the `setpasswd.sh` script and see all other users passwords and keeping plain text passwords is considered bad practice.
 
 To generate a hashed password use `mkpasswd` which is available in this image or use [https://trnubo.github.io/passwd.html](https://trnubo.github.io/passwd.html) to generate a hash in your browser. Example use of `mkpasswd` below.
 
-```
-$ docker run --rm -it --entrypoint /usr/bin/env quay.io/panubo/sshd:1.9.0 mkpasswd
+```bash
+docker run --rm -it --entrypoint /usr/bin/env quay.io/panubo/sshd:1.9.0 mkpasswd
 Password:
 $6$w0ZvF/gERVgv08DI$PTq73dIcZLfMK/Kxlw7rWDvVcYvnWJuOWtxC7sXAYZL69CnItCS.QM.nTUyMzaT0aYjDBdbCH1hDiwbQE8/BY1
 ```
 
 To start sshd with the `setpasswd.sh` script
 
-```
+```bash
 docker run -ti -p 2222:22 \
   -v $(pwd)/keys/:/etc/ssh/keys \
   -e SSH_USERS=user:1000:1000 \
@@ -124,7 +150,7 @@ docker run -ti -p 2222:22 \
 To enable password authentication on the root account, the previous `setpasswd.sh` script must also define a password for the root user, then
 the command will be:
 
-```
+```bash
 docker run -ti -p 2222:22 \
   -e SSH_ENABLE_ROOT_PASSWORD_AUTH=true \
   -v $(pwd)/entrypoint.d/:/etc/entrypoint.d/ \
@@ -139,7 +165,7 @@ directory.
 
 You can access with `ssh root@localhost -p 2222` using your private key.
 
-```
+```bash
 docker run -ti -p 2222:22 \
   -v ${HOME}/.ssh/id_rsa.pub:/root/.ssh/authorized_keys:ro \
   -v $(pwd)/keys/:/etc/ssh/keys \
@@ -150,13 +176,38 @@ docker run -ti -p 2222:22 \
 
 Create a `www` user with gid/uid 48. You can access with `ssh www@localhost -p 2222` using your private key.
 
-```
+```bash
 docker run -ti -p 2222:22 \
   -v ${HOME}/.ssh/id_rsa.pub:/etc/authorized_keys/www:ro \
   -v $(pwd)/keys/:/etc/ssh/keys \
   -v $(pwd)/data/:/data/ \
   -e SSH_USERS="www:48:48" \
   quay.io/panubo/sshd:1.9.0
+```
+
+## Docker Compose
+
+Example `docker-compose.yml`:
+
+```yaml
+services:
+  sshd:
+    image: panubo/sshd
+    ports:
+      - "2222:22"
+    environment:
+      - SSH_USERS=user:1000:1000
+    volumes:
+      - ./keys:/etc/ssh/keys
+      - ./id_rsa.pub:/etc/authorized_keys/user:ro
+```
+
+## Testing
+
+This project uses `bats` for testing. You can run the tests using `make`:
+
+```bash
+make test
 ```
 
 ## Releases
