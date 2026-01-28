@@ -25,9 +25,9 @@ print_fingerprints() {
     local BASE_DIR=${1-'/etc/ssh'}
     for item in rsa ecdsa ed25519; do
         echo ">>> Fingerprints for ${item} host key"
-        ssh-keygen -E md5 -lf ${BASE_DIR}/ssh_host_${item}_key
-        ssh-keygen -E sha256 -lf ${BASE_DIR}/ssh_host_${item}_key
-        ssh-keygen -E sha512 -lf ${BASE_DIR}/ssh_host_${item}_key
+        ssh-keygen -E md5 -lf "${BASE_DIR}"/ssh_host_${item}_key
+        ssh-keygen -E sha256 -lf "${BASE_DIR}"/ssh_host_${item}_key
+        ssh-keygen -E sha512 -lf "${BASE_DIR}"/ssh_host_${item}_key
     done
 }
 
@@ -35,10 +35,13 @@ check_authorized_key_ownership() {
     local file="$1"
     local _uid="$2"
     local _gid="$3"
-    local uid_found="$(stat -c %u ${file})"
-    local gid_found="$(stat -c %g ${file})"
+    local uid_found
+    local gid_found
 
-    if ! ( [[ ( "$uid_found" == "$_uid" ) && ( "$gid_found" == "$_gid" ) ]] || [[ ( "$uid_found" == "0" ) && ( "$gid_found" == "0" ) ]] ); then
+    uid_found="$(stat -c %u "${file}")"
+    gid_found="$(stat -c %g "${file}")"
+
+    if ! { [[ ( "$uid_found" == "$_uid" ) && ( "$gid_found" == "$_gid" ) ]] || [[ ( "$uid_found" == "0" ) && ( "$gid_found" == "0" ) ]]; }; then
         echo "WARNING: Incorrect ownership for ${file}. Expected uid/gid: ${_uid}/${_gid}, found uid/gid: ${uid_found}/${gid_found}. File uid/gid must match SSH_USERS or be root owned."
     fi
 }
@@ -74,26 +77,26 @@ if [ -w /etc/authorized_keys ]; then
     chown root:root /etc/authorized_keys
     chmod 755 /etc/authorized_keys
     # test for writability before attempting chmod
-    for f in $(find /etc/authorized_keys/ -type f -maxdepth 1); do
+    find /etc/authorized_keys/ -type f -maxdepth 1 -print0 | while IFS= read -r -d '' f; do
         [ -w "${f}" ] && chmod 644 "${f}"
     done
 fi
 
 # Add groups if SSH_GROUPS=group:gid set
 if [ -n "${SSH_GROUPS}" ]; then
-    GROUPZ=$(echo $SSH_GROUPS | tr "," "\n")
+    GROUPZ=$(echo "${SSH_GROUPS}" | tr "," "\n")
     for G in $GROUPZ; do
         IFS=':' read -ra GA <<< "$G"
         _NAME=${GA[0]}
         _GID=${GA[1]}
         echo ">> Adding group ${_NAME} with gid: ${_GID}."
-        getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
+        getent group "${_NAME}" >/dev/null 2>&1 || groupadd -g "${_GID}" "${_NAME}"
     done
 fi
 
 # Add users if SSH_USERS=user:uid:gid set
 if [ -n "${SSH_USERS}" ]; then
-    USERS=$(echo $SSH_USERS | tr "," "\n")
+    USERS=$(echo "${SSH_USERS}" | tr "," "\n")
     for U in $USERS; do
         IFS=':' read -ra UA <<< "$U"
         _NAME=${UA[0]}
@@ -109,12 +112,12 @@ if [ -n "${SSH_USERS}" ]; then
         if [ ! -e "/etc/authorized_keys/${_NAME}" ]; then
             echo "WARNING: No SSH authorized_keys found for ${_NAME}!"
         else
-            check_authorized_key_ownership /etc/authorized_keys/${_NAME} ${_UID} ${_GID}
+            check_authorized_key_ownership /etc/authorized_keys/"${_NAME}" "${_UID}" "${_GID}"
         fi
         if [ -z "${SSH_GROUPS}" ]; then
-            getent group ${_NAME} >/dev/null 2>&1 || groupadd -g ${_GID} ${_NAME}
+            getent group "${_NAME}" >/dev/null 2>&1 || groupadd -g "${_GID}" "${_NAME}"
         fi
-        getent passwd ${_NAME} >/dev/null 2>&1 || useradd -r -m -p '' -u ${_UID} -g ${_GID} -s ${_SHELL:-""} -c 'SSHD User' ${_NAME}
+        getent passwd "${_NAME}" >/dev/null 2>&1 || useradd -r -m -p '' -u "${_UID}" -g "${_GID}" -s "${_SHELL:-""}" -c 'SSHD User' "${_NAME}"
     done
 else
     # Warn if no authorized_keys
@@ -156,9 +159,9 @@ fi
 
 configure_sftp_only_mode() {
     echo "INFO: configuring sftp only mode"
-    : ${SFTP_CHROOT:='/data'}
-    chown 0:0 ${SFTP_CHROOT}
-    chmod 755 ${SFTP_CHROOT}
+    : "${SFTP_CHROOT:=/data}"
+    chown 0:0 "${SFTP_CHROOT}"
+    chmod 755 "${SFTP_CHROOT}"
     printf '%s\n' \
         'set /files/etc/ssh/sshd_config/Subsystem/sftp "internal-sftp"' \
         'set /files/etc/ssh/sshd_config/AllowTCPForwarding no' \
@@ -171,20 +174,20 @@ configure_sftp_only_mode() {
 
 configure_scp_only_mode() {
     echo "INFO: configuring scp only mode"
-    USERS=$(echo $SSH_USERS | tr "," "\n")
+    USERS=$(echo "${SSH_USERS}" | tr "," "\n")
     for U in $USERS; do
         _NAME=$(echo "${U}" | cut -d: -f1)
-        usermod -s '/usr/bin/rssh' ${_NAME}
+        usermod -s '/usr/bin/rssh' "${_NAME}"
     done
     (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowscp") > /etc/rssh.conf
 }
 
 configure_rsync_only_mode() {
     echo "INFO: configuring rsync only mode"
-    USERS=$(echo $SSH_USERS | tr "," "\n")
+    USERS=$(echo "${SSH_USERS}" | tr "," "\n")
     for U in $USERS; do
         _NAME=$(echo "${U}" | cut -d: -f1)
-        usermod -s '/usr/bin/rssh' ${_NAME}
+        usermod -s '/usr/bin/rssh' "${_NAME}"
     done
     (grep '^[a-zA-Z]' /etc/rssh.conf.default; echo "allowrsync") > /etc/rssh.conf
 }
@@ -229,7 +232,8 @@ done
 stop() {
     echo "Received SIGINT or SIGTERM. Shutting down $DAEMON"
     # Get PID
-    local pid=$(cat /var/run/$DAEMON/$DAEMON.pid)
+    local pid
+    pid=$(cat /var/run/$DAEMON/$DAEMON.pid)
     # Set TERM
     kill -SIGTERM "${pid}"
     # Wait for exit
@@ -238,10 +242,10 @@ stop() {
     echo "Done."
 }
 
-echo "Running $@"
-if [ "$(basename $1)" == "$DAEMON" ]; then
+echo "Running $*"
+if [ "$(basename "$1")" == "$DAEMON" ]; then
     trap stop SIGINT SIGTERM
-    $@ &
+    "${@}" &
     pid="$!"
     mkdir -p /var/run/$DAEMON && echo "${pid}" > /var/run/$DAEMON/$DAEMON.pid
     wait "${pid}"
