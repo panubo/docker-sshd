@@ -1,4 +1,4 @@
-FROM alpine:3.20 AS base
+FROM alpine:3.22 AS base
 
 RUN apk update && \
     apk add --no-cache bash git openssh rsync augeas shadow rssh && \
