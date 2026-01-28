@@ -1,0 +1,4 @@
+.git*
+Dockerfile*
+test/
+Makefile
