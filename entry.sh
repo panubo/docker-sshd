@@ -78,7 +78,9 @@ if [ -w /etc/authorized_keys ]; then
     chmod 755 /etc/authorized_keys
     # test for writability before attempting chmod
     find /etc/authorized_keys/ -type f -maxdepth 1 -print0 | while IFS= read -r -d '' f; do
-        [ -w "${f}" ] && chmod 644 "${f}"
+        if [ -w "${f}" ]; then
+            chmod 644 "${f}"
+        fi
     done
 fi
 
